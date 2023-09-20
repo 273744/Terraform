@@ -1,16 +1,12 @@
-provider "google" {
- project = var.project_id
+resource "google_service_account" "my_service_account" {
+  account_id   = "my-service-account"
+  display_name = "My Service Account"
 }
 
-variable "service_account_id" {
- type = string
+resource "google_service_account_key" "my_service_account_key" {
+  service_account_id = google_service_account.my_service_account.name
 }
 
-resource "google_service_account" "default" {
- account_id = var.service_account_id
-}
-
-resource "google_service_account_key" "default" {
- account_id = google_service_account.default.account_id
- key_type = "JSON"
+output "key_secret" {
+  value = google_service_account_key.my_service_account_key.private_key
 }
