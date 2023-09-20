@@ -1,0 +1,104 @@
+Step 1: Create a Terraform Configuration Directory Structure
+
+Create a directory structure for your Terraform configuration:
+
+css
+Copy code
+my-service-account/
+  ├── main.tf
+  ├── variables.tf
+  ├── outputs.tf
+  └── terraform.tfvars
+Step 2: Write Terraform Configuration
+
+Create a main.tf file with the following content:
+hcl
+Copy code
+provider "google" {
+  credentials = file(var.gcp_credentials_file)
+  project     = var.gcp_project_id
+  region      = var.gcp_region
+}
+
+resource "google_service_account" "my_service_account" {
+  account_id   = var.service_account_name
+  display_name = var.service_account_display_name
+}
+
+resource "google_service_account_key" "my_service_account_key" {
+  service_account_id = google_service_account.my_service_account.name
+}
+
+output "key_secret" {
+  value = google_service_account_key.my_service_account_key.private_key
+}
+Create a variables.tf file with the following content:
+hcl
+Copy code
+variable "gcp_credentials_file" {
+  description = "Path to the GCP credentials JSON file."
+}
+
+variable "gcp_project_id" {
+  description = "Google Cloud Project ID."
+}
+
+variable "gcp_region" {
+  description = "GCP region to use for resources."
+  default     = "us-central1"
+}
+
+variable "service_account_name" {
+  description = "Name of the service account to create."
+}
+
+variable "service_account_display_name" {
+  description = "Display name of the service account."
+}
+Create an outputs.tf file to define any output variables you might need in the future:
+hcl
+Copy code
+output "service_account_email" {
+  value = google_service_account.my_service_account.email
+}
+
+output "key_secret" {
+  value = google_service_account_key.my_service_account_key.private_key
+}
+Step 3: Create a terraform.tfvars file to provide values for your variables:
+
+hcl
+Copy code
+gcp_credentials_file      = "path/to/your/credentials.json"
+gcp_project_id            = "your-project-id"
+service_account_name      = "my-service-account"
+service_account_display_name = "My Service Account"
+Replace the placeholders with your actual values.
+
+Step 4: Initialize Terraform
+
+Open your terminal, navigate to the my-service-account directory, and run:
+
+sh
+Copy code
+terraform init
+Step 5: Plan and Apply the Configuration
+
+Run the following commands:
+
+sh
+Copy code
+terraform plan
+terraform apply
+Terraform will show you what resources will be created or modified. If everything looks good, confirm by typing yes when prompted.
+
+Step 6: Retrieve the Service Account Key
+
+After Terraform completes the creation, you can retrieve the private key for the service account by running:
+
+sh
+Copy code
+terraform output key_secret > my-service-account-key.json
+This command saves the private key to a JSON file named my-service-account-key.json. Be sure to securely store and manage this key because it won't be retrievable again.
+
+You have now created a service account and generated a key for it using Terraform in GCP while using a variables.tf file.
