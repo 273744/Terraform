@@ -1,0 +1,35 @@
+Function RemoveDuplicateLinesFromFile(fileName)
+
+ ' Create a list to store the lines in the file.
+ Dim lines As New Collection
+
+ ' Open the file for reading.
+ Dim file As Object
+ Set file = FSO.OpenTextFile(fileName, ForReading)
+
+ ' Read the lines from the file and add them to the list.
+ Dim line As String
+ Do Until file.AtEndOfStream
+   line = file.ReadLine
+   lines.Add line
+ Loop
+
+ ' Close the file.
+ file.Close
+
+ ' Remove the duplicate lines.
+ Dim filteredLines As New Collection
+ Set filteredLines = RemoveDuplicateLines(lines)
+
+ ' Open the file for writing.
+ Set file = FSO.OpenTextFile(fileName, ForWriting)
+
+ ' Write the filtered lines to the file.
+ For Each line In filteredLines
+   file.WriteLine line
+ Next
+
+ ' Close the file.
+ file.Close
+
+End Function
