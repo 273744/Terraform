@@ -1,0 +1,36 @@
+' Define the input and output file paths
+inputFilePath = "input.txt"
+outputFilePath = "output.txt"
+
+' Create a dictionary to store unique lines
+Set uniqueLines = CreateObject("Scripting.Dictionary")
+
+' Open the input file for reading
+Set inputFile = CreateObject("Scripting.FileSystemObject").OpenTextFile(inputFilePath, 1)
+
+' Read each line from the input file
+Do Until inputFile.AtEndOfStream
+   line = inputFile.ReadLine
+
+   ' Check if the line is not already in the dictionary (i.e., unique)
+   If Not uniqueLines.Exists(line) Then
+       ' Add the line to the dictionary
+       uniqueLines(line) = True
+   End If
+Loop
+
+' Close the input file
+inputFile.Close
+
+' Open the output file for writing
+Set outputFile = CreateObject("Scripting.FileSystemObject").CreateTextFile(outputFilePath, True)
+
+' Write the unique lines to the output file
+For Each line In uniqueLines.Keys
+   outputFile.WriteLine line
+Next
+
+' Close the output file
+outputFile.Close
+
+WScript.Echo "Duplicate lines removed and saved to " & outputFilePath
