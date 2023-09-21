@@ -1,0 +1,31 @@
+' Define the input and output file paths
+inputFilePath = "input.txt"
+outputFilePath = "output.txt"
+
+' Open the input file for reading
+Set inputFile = CreateObject("Scripting.FileSystemObject").OpenTextFile(inputFilePath, 1)
+
+' Open the output file for writing
+Set outputFile = CreateObject("Scripting.FileSystemObject").CreateTextFile(outputFilePath, True)
+
+' Initialize a variable to store the previous 56 characters
+previousChars = ""
+
+' Read each line from the input file
+Do Until inputFile.AtEndOfStream
+   line = inputFile.ReadLine
+
+   ' Check if the first 56 characters of the line are not the same as the previous line
+   If Left(line, 56) <> previousChars Then
+       ' Write the line to the output file
+       outputFile.WriteLine line
+       ' Update the previousChars variable
+       previousChars = Left(line, 56)
+   End If
+Loop
+
+' Close the input and output files
+inputFile.Close
+outputFile.Close
+
+WScript.Echo "Lines with duplicated first 56 characters removed and saved to " & outputFilePath
