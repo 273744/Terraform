@@ -1,0 +1,30 @@
+provider "google" {
+ credentials = file("path/to/your/credentials.json")
+ project     = "your-project-id"
+ region      = "us-central1" # Change to your desired region
+}
+
+resource "google_service_account" "my_service_account" {
+ account_id   = "my-service-account"
+ display_name = "My Service Account"
+}
+
+resource "google_project_iam_custom_role" "my_custom_role" {
+ role_id     = "my-custom-role"
+ title       = "My Custom Role"
+ description = "A custom role for my project"
+ permissions = [
+   "compute.instances.list",
+   "compute.instances.create",
+   # Add more permissions as needed
+ ]
+}
+
+resource "google_project_iam_binding" "my_service_account_binding" {
+ project = "your-project-id"
+ role    = google_project_iam_custom_role.my_custom_role.role_id
+
+ members = [
+   "serviceAccount:${google_service_account.my_service_account.email}"
+ ]
+}
