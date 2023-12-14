@@ -1,0 +1,168 @@
+This is the weak database you are using, which is giving to vendor. Vendor is currently providing us a Postgres database. Is that what you are looking for or something else?
+No, your application, what is your name of the application? Enterprise Data Catalog EDC and it stands for Enterprise Data Catalog.
+Okay. Your application uses which database? Acer, Excel, which one?
+Postgres database. We don't use any other database.
+Postgres is a system database. The same database you use or we use the database you use? No, we just use only one database. Okay.
+Okay. See actually, in this call, we are going to discuss on this password complexity, right?
+Right, yes. That is one of the things that we want to talk about. But other than that, we do have a couple of things that we want to talk about.
+Okay. Already you are using... Yeah, Ashwin, please. Yeah, sorry. I need to interrupt. So, I believe one quick question, like, so are these database already in the live?
+Because... They got it. Do you have the DB details handy? Because the one database you are seeing might not be in the current list of our databases.
+So, just wanted to check, are you going to build a new one or it's... Ashwin, it looks like they are building a new system. Oh.
+So, they want to understand how the post this works with different modules like password, etc.
+No, actually just a slight modification. We already have a database that we created. Okay? Okay.
+And what we want to understand primarily is how are we going to, like, other databases like Keybank or other post-crisp databases like Keybank,
+how are the password complexity being applied and also how is user creation or user maintenance handled at... So, these are the two primary things that we would like to understand.
+Can I ask a few questions before we get that deep? Mm-hmm. This is Kim. So, you said you already have a database built. Where is it? It's on the application server. Okay.
+That is not typically the way that we would use it. So, how would you do that?
+Yeah, I understand, but the vendor architecture was something like that where they installed the application and the database on the same server.
+I understand Keybank does not prefer that, but that's how the vendor architecture works.
+All right. So, typically we would still do that. I mean, we'd still do that for a project engagement and we'd make sure that all of the standards and best practices are applied so that we have... Yeah.
+...like centralized governance at least of the instance. So, I guess, I mean, I'm appreciative that you're doing the right thing and asking the right questions to say, hey, we know we need to comply with all of these standards as well, so how do we do it?
+I think the challenging part for you is going to become like long-term.
+It's managing any changes or shifts in any of those standards and requirements and how do you make sure that those are being followed, you know, in the long term. Yeah.
+So, we can certainly share with you how we do it on-prem for like password complexity.
+Like we built our own solution for that for Postgres because it's not built into the product.
+Are you using an open source Postgres or are you using...like what version is it...is it fully supported by the vendor?
+Like if anything breaks with that Postgres instance, like they're going to help you pass it on? They're going to help you support it and manage it? Yes. It's going to be a fully provided vendor solution.
+Again, I really don't know what exact version we are on, but from...like we did get the code scan report and we did not see any issues with the database itself.
+So, I'm expecting that they're using the latest version, but, yeah, it's fully supported by the vendor itself. Okay. So, I'm going to go ahead and jump in for a second, Kim, just a small bit.
+So, it was supposed to be a black box completely, like a database that nobody knows about. It's under installation script support.
+The only reason they told us they're accessing it is because there's some data, like metadata, that now our QBank users want to see. So, it's being dragged out into the light.
+And there is...it is a Postgres installation. But the accessing of it right now is through the application GUI only.
+They have a way to change that configuration to access the front command line. But right now we're not doing it.
+So, it's a little...I wonder if the access and support, like they're not...they didn't build it to be supported outside of their installation scripts. Right.
+They allowed that flavor of access through the GUI. Okay. Yeah. Either way, like just for all candor, like this is going to show up on like scanning reports and things like that as Postgres.
+Mm-hmm. So, what happens there... Yeah. It is Postgres. Yeah. That stuff's going to come to me. And then we have to shuffle that around.
+So, we can kind of sort that out as we go, I suppose. We're already too deep in to do anything different. So, I guess like let me ask like Ashwin and Harish.
+Like do you guys have the code that we use? Do you guys have the code that we use to enforce that password policy? Yes. We can just share that with... Yeah. Yeah. Cool. We can share that with Dilip and his team.
+And you're welcome to use something similar to that, you know, for your own purpose. So, it'll just be...you may have to adjust it or work with the vendor to adjust, you know,
+how it gets implemented to make sure that it works with their implementation if it's fully vendor covered. Do you ever have a model where the database is not fully vendor covered? Do you ever have a model where the database is deployed on an application server and your team supports it?
+Yes. We have plenty of that. But we would install... Would it make sense to look at... We would install our version of it though, right? Like with our control...
+Sorry. Go ahead. I'm just thinking out loud here. Yeah. I don't know how feasible it just would have been that they haven't been terribly flexible in relation to it. It's like, you know, take it or leave it.
+Hey, Kim. This is Keith from the app. I work with Dilli. So these databases and these components that we're talking about on the Elation platform, they were all deployed under Dockerized containers, right?
+So this Postgres database, it really sits under the hood, you know, within these Docker containers. Is that a pattern that you've seen in the past that you're supporting with other apps? Not typically.
+Most applications putting the database on a container isn't the model that they like to go with. Because obviously the container gets thrown away and spun back up again and usually data would be persistent.
+So maybe, I don't know if you guys have like a sort of a special setup where maybe it collects that and sends the data to more of a more centralized repository somewhere.
+So if that gets spun out and back up again, it just kind of gives you a brand new one. That's essentially what happens, Kim. Yeah. So we have basically there's two Postgres databases on this application, right?
+The one is the core app. It's this, it's a data catalog platform, right? So the core app has all of this data cataloging going on. And then the second app that we're talking about, that delete, that delete is showing
+on the screen here, this Postgres, is basically taking all of that operational data from the first catalog database and loading it whenever we need it. So if the database gets re-spun up, it's able to kind of parse all that data from the first
+database and stand up that second one automatically. So it really doesn't need to persist. That's why they did containerize it. Okay. So it just resources it from... Yeah, exactly. Yes. That's good to hear. Yep.
+I'm not actually surprised. I mean, a vendor's not going to put data out there and just pose it and... Yeah, exactly. Yep. That makes sense.
+I mean, because of the way this is configured, I don't know that it fits a model of our team managing it specifically. Certainly, if you guys need help or support or whatnot, we're here and we're happy to
+provide whatever support we can. Yeah. We're happy to help. But from an enterprise perspective, we use enterprise DBE Postgres so that we have full support from the vendor.
+Obviously, we would do our patching and all those types of things based on the deployments that they put out for us to leverage.
+So we're open source, but kind of like a flex open source with a third-party support vendor. So it doesn't fit exactly with the product that we manage.
+But it does sound like it's fairly large. Yeah, that's correct. So all the time it's probably things like something like hub, like touch. I don't know, Malka, what other requirements they have? Like obviously password complexity.
+How are you provisioning users for this? Are you manually doing that? Is it through the application?
+We do have the option to manually provision users. Again, that's the other thing that we wanted to understand. How is it being done today? Key points?
+and we have a command from the vendor obviously we will need to have btgm
+stopped executed in production but do we have any other way on user creation or what is the standard way for postgres given to create users and things is what
+we want to understand so we have I mean we have a central IDM form for creating
+new users to any postgres instance that's in our environment I don't know
+because postgres uses local IDs and not doesn't have the ability to really
+leverage like a shared enterprise management platform like LDAP or active
+directory you're likely just creating local IDs in your database as well right so I think that's a good question I think that's a good question I think correct right yeah so these are the commands that the vendor has given us
+where we get into the server then we enable yeah and then we just create a
+user and grant that that they need to and verify if the user is present you're creating a user based on their email account right you're setting it a
+password so it's a local ID that just matches their email address right yeah and the password again is a default password and the user will be
+prompted to change it when they log on for the first time right okay I think the couple of tricky things that you're going to need to do is like if these are
+these are human users obviously that are getting created typically you would want
+that to go through some kind of IDM process and with that like those need to be expired and they
+to reset every 180 days now go something like that for humans we have been forced
+that yeah I don't get overhead with yeah like anything we're managing people I
+have access to a data source it gets a little bit hairy with all the controls are that are needed okay and then the other piece is if you have any non human
+ID is like need to link in and have another application for your application connecting to the database those should be registered in IDM and managed with a
+password rotation as well yeah so that's the thing that we wanted to understand we will have a different TCP project which would like to connect to this
+postgres database and do some analysis basically try some data and do some analysis so we want to understand how can we
+do that like can we follow the same procedure of granting the service
+account access to this database with the password and again because deployed on
+primer in the cloud cloud but it is on IBM or on the container right yeah is it
+it's an RGCP cloud or it's yeah it's an RGCP cloud
+keyback tenant and we're using docker container not GKE yeah now guys I thought
+I thought docker went away he's still using docker I think I guess they've
+been there so the vendor this case with you guys have an enterprises architect
+that you're working with yes Krish Rasedar a lot of just a lot of non-standard stuff
+going on a little concerning especially in the cloud space where things are not
+quite as well defined yet so yeah I don't I mean I don't know exactly what
+I'm still struggling to get IDM forms for anything that's in the cloud I mean from a from an application IDM form perspective for human users I think that like you have a lot of stuff going on in the cloud so I think it's kind of a
+bit of a challenge to like you know you can step forward on that like you might want just a role on your form that gives like database user access and then you'd
+want to work with your access control specialist to make sure that like those are routed properly so if it's really your team that gets them and you do this
+like manual creation of a user but that's that that's done and at least it's registered and managed through an IDM process that'd be my recommendation we're
+yeah it would be one of the functions of existing roles like some rules they have certain elements within the GUI plus access to the database through the GUI
+that is fine that's what I want to do if it's a database only access it will be what one of these elements of existing roles all right I mean that's fine however the form works is just something
+has to trigger them to know that they have to run this script to create a user and then it just works like a normal type of MOOC form so there's those work it's all just it's not really anymore in the cloud yet I don't know how it's going to work I think And that that's managed and monitored for, right?
+So, Kim, I think we need to take a step back here because this script was given to us from the Elation team when we asked them to, hey, how can we create a service account on this database specifically so we can set up a pipeline into our TAW, right?
+So this script, if the normal operations for users in our platform that are going to be accessing this database, all that's done through the UI, aside from setting a local password.
+This script does not run for user, user, user on a day-to-day basis. This is just for a back-end service account. Just want to be clear there. Okay.
+So if this is a back-end service account, then that's more like a non-human ID, right? Right. Okay. So that's better. I mean, it's better from a general process perspective.
+Right. Agreed. That's also, like, so there's a whole separate platform for non-human ID management. That's part of IDM.
+So that's the part where, like, I've been trying to get a form for Cloud SQL Postgres and Cloud SQL MS SQL for maybe 18 months now. I'm still pushing. So they're getting closer to building one.
+But, like, we have to have a separate specific non-human ID form for that. All the process that goes around non-human IDs.
+I don't know if there's an exception to that for this, Malka. Or if that's something. What they would want to be able to do is create a non-human ID form for this particular platform that's leveraging.
+I mean, it's leveraging a database in the back-end, but it's not a normal, centrally managed database. Yeah. Once you create this. I was just saying, human ID is one thing.
+Non-human ID, we're tracking it. It's non-human ID. How do we track it? Right. I think it's a big question. Like, and it's not. I mean, I'll be candid. It's certainly not just your team that's going to face this. I think there's a lot.
+There's a lot of apps out there that are probably under the covers managing non-human IDs. They just don't know it yet. Similar to this setup. But, yeah.
+And then if this database, I guess you're doing a create user. Not a Cloud SQL instance. It's on the server. So it really is just like a local database.
+You'd have to make sure this gets recreated every time your container gets spun back up, too. So you'd probably have to put that into some kind of whatever the code is that regenerates your Docker instance.
+Maybe this is something Prisma can help with. Docker? What do you think? It's in the Cloud. Maybe they can stand for it. Scripting. Yeah. It's just two things, right?
+Scripting probably is easier. You know, worst case, they'll do it manually if they have to. It's more like I'm still stuck on the tracking of the database that I see.
+There were also non-human IDs created for the database, for the application itself, and we're looking at getting them, you know, into AD with Centrify, a tuning space.
+So that would take care of the application on the database. The application probably created some non-human IDs in the database already when it's installed.
+I'm sure it did, yeah. Yeah, there's things that we don't know about and we don't really necessarily care about. This is an interface.
+If we don't care about it, I mean, I don't know how we document that we don't care about it, but if we don't, like, then I think that's just the exception process that we follow.
+But, like, I don't have the luxury of having exceptions to that stuff, so we'd have to track them all.
+We are going to be, I am asking for a variance, but this, you know, because it's not something, this is not a centralized service, we need a separate variance so that it's both graphed database.
+So both. Yeah, so both non-human IDs and human IDs, but it doesn't necessarily track all IDs that are being created. Right. If we don't find a centralized way, we'll have to roll that into the variance too.
+Yeah, maybe that's just something you want to reach out to the non-human ID team and see what their suggestion is on how to do that. Who would be the right people to talk to? Penny Robinson.
+There is a Postgres non-human ID form out there, but that funnels over to my team. Yeah, so either you're supporting this or you're not, right, and if you're not supporting it, you're not creating IDs.
+Yeah, we wouldn't have access to do any of that, so it's kind of a, it's a tricky, a tricky setup.
+Do you know of other precedents where Vendor Software manages database and you're not managing it?
+There are plenty of examples of other applications that run on Vendor Software. I don't know specifically offhand.
+I know there's a few in CyberArk. They have an embedded database within their application servers.
+Vendor's basically said that is a black box, like they don't have any access to it, so it might be a little bit different.
+And there are the ones that we support I know of, so we have a couple for UCC, Unified Contact Center. That we manage kind of in a hybrid capacity.
+I can't think of the other ones. There's a couple, there's a few. I can't remember all of them offhand, but UCC is a big one. They have like five or six instances of SQL Server.
+And how we handle that is we install our version of SQL Server that has all the standards and, you know, governance built into it on their application server.
+And then we do a lot of shared management of that, depending on what needs to be done.
+The open source stuff throws an extra wrench because it's not the same version. Like we're using EDB Postgres for everything that we support on a server.
+And we haven't onboarded anything from Postgres on a server in the cloud. We have to develop that. We haven't done that yet. We don't have an agreement with EDB to do anything in the cloud yet.
+Okay. To the specific issues at hand. Are you going to... You have the script for password length and complexity. What about script for password rotation and expiration?
+How do you handle that? Is it all manual or is it scripted? So right now, for Postgres, I don't know.
+So the non-human ID team manages basically the whole process for password rotation. If they need us to reset a password, then they would reach out to us. But I think their team has access to get into Postgres.
+And do that password change. And then they put it back into CyberArk for the application team. So they can... What about a human account? How do you expire human access?
+So I think we expire it. But then the provisioning team has access to apply access. So for separation of duties, my team does not provision human user access to databases.
+And is that the manual? Like manual stuff? You know, someone runs it once in a while? Once in a while, it's an automated script. Yeah. And then they have a script that checks the dates on the password and expires it.
+Ashwin or Harish, is it in that script? Does it expire human passwords after 180 days? Like what's the... I don't know the mechanism that we use for that. We're not going to take a look at that.
+Okay. I want to take a look again at that. I think we put something in at some point. So maybe it's not that script, but somewhere else. Okay. So we need three things. The password length, the password complexity, and the password experience. Okay. And then the configuration.
+That would have to be applied to this Postgres database. Provisioning, we've sort of taken care of with the IDM.
+And then another outstanding item is provisioning of the non-human ID. How do we track it? The provisioning for... Yeah. Yeah. Yep.
+I agree. Dilip and Keith, for the script, we want to check in with the vendor if they're okay with us putting in custom scripts. We want to check in with the vendor if they're okay with us putting scripts in the database.
+And how we can... The database keeps getting spun up every time. How do we bake those scripts into the terraforming? Those counts in the terraforming script.
+You can make sure that they get added automatically. So that's why I'm going back to the vendor. Okay.
+So to summarize it all, we are going to get scripts from... I'm sorry. Say from the Eğer Graphics team.
+And in the mansion team are going to handle the password and the rotation for human users and the non-human users. In this case, in this account.
+And also for user creations, we are going to have an IDM form. But that's an answer to the question where right now the access to the application is
+done through IDM form. And also, any user who gets access to the application itself with theíveis embedded
+a catalog admin is only allowed to get into the database. So does that, like will that
+be sufficient if we document within our IDM form saying that a user who submits catalog admin... Is that an ICM? That's the catalog admin?
+Yes, we are right now modifying our IDM form, but yes, eventually the catalog admin role will have access to the Alation Analytics database and no one else will be
+having access to that. Again, with BTG, the system admin gets it, but on a day-to-day basis, no other user gets access to Alation Analytics. We are renaming this to catalog admin.
+What I'm hearing you asking is if it's not such a document, that this is the one role that has access to the full-thread database. That's the provisioning documentation that we'll track down.
+Right, yes. The spreadsheet that explains what each IDM will have access to. Yes. What type of actual has within that application. I think it's enough. Okay, so we are not going to have a separate IDM form?
+No, I don't think so. Non-human IDs are separate from that. This is all human users that are part of your regular one. It's the non-human IDs that I think you might still need some kind of IDM...
+Okay, so... ... or a variance, to Malta's point. Yes, that's Daniel Robinson. We need another session, another meeting. Yes. Can you see what they recommend?
+Okay, sure. So, for service account, I will set up a meeting. Okay. So, I think those
+are the two things that we wanted to have. Any other questions? I know we are out of time.
+I don't have any more. Thank you, Kim, my team, for helping me out of here. It was a bit of a mess. No problem. Yeah, let us know if you need any other support or guidance. We'll get over with the scripts
+that we do have and let you know after we're doing it. Okay. Yeah. Thanks, Kim. Thanks, everyone, for your time. Thanks, all. Thank you. Bye.
+
+
+
+That’s the end of your recording! We hope our transcription made your workday more enjoyable. If it did, consider trying out our pro version on goodtape.io:
+
+- All your transcriptions*
+- Skip the queue = minimal waiting time
+- We will store your transcriptions (including this one) safely
+
+*) Well, up to 20 hours/month, which is kind of a lot. If you need to transcribe more let us know on yourfriends@mygoodtape.com
+    
