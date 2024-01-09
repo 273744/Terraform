@@ -1,0 +1,51 @@
+Sub CompareAndGenerateNewExcel()
+   Dim wb1 As Workbook, wb2 As Workbook, ws1 As Worksheet, ws2 As Worksheet, wsNew As Worksheet
+   Dim lastRow1 As Long, lastRow2 As Long, i As Long, j As Long, newRow As Long
+   Dim found As Boolean
+   Dim filePath1 As String, filePath2 As String, resultFilePath As String
+   ' Update with the actual file paths
+   filePath1 = "C:\Path\To\File1.xlsx"
+   filePath2 = "C:\Path\To\File2.xlsx"
+   resultFilePath = "C:\Path\To\ResultFile.xlsx"
+   ' Open the workbooks
+   Set wb1 = Workbooks.Open(filePath1)
+   Set wb2 = Workbooks.Open(filePath2)
+   ' Set your sheet names here
+   Set ws1 = wb1.Sheets("Sheet1") ' Update with your actual sheet name
+   Set ws2 = wb2.Sheets("Sheet2") ' Update with your actual sheet name
+   ' Create a new workbook for results
+   Dim resultWb As Workbook
+   Set resultWb = Workbooks.Add
+   ' Set the result sheet in the new workbook
+   Set wsNew = resultWb.Sheets(1)
+   wsNew.Name = "ResultSheet"
+   ' Find the last row in each sheet
+   lastRow1 = ws1.Cells(ws1.Rows.Count, "A").End(xlUp).Row
+   lastRow2 = ws2.Cells(ws2.Rows.Count, "A").End(xlUp).Row
+   ' Headers for the new sheet
+   wsNew.Cells(1, 1).Value = "UserID"
+   wsNew.Cells(1, 2).Value = "SubmissionDate"
+   ' Loop through each row in the first sheet
+   For i = 2 To lastRow1
+       found = False
+       ' Loop through each row in the second sheet
+       For j = 2 To lastRow2
+           ' Compare user IDs
+           If ws1.Cells(i, 1).Value = ws2.Cells(j, 1).Value Then
+               found = True
+               Exit For
+           End If
+       Next j
+       ' If user ID not found in the second sheet, copy to the new sheet
+       If Not found Then
+           newRow = wsNew.Cells(wsNew.Rows.Count, "A").End(xlUp).Row + 1
+           ws1.Rows(i).Copy wsNew.Rows(newRow)
+       End If
+   Next i
+   ' Save the result workbook
+   resultWb.SaveAs resultFilePath
+   ' Close all workbooks without saving changes
+   resultWb.Close False
+   wb1.Close False
+   wb2.Close False
+End Sub
