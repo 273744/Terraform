@@ -1,0 +1,65 @@
+Sub MergeRACFIDs()
+   Dim wbLogins As Workbook, wbIDM As Workbook, wsLogins As Worksheet, wsIDM As Worksheet, wsFinal As Worksheet
+   Dim lastRowLogins As Long, lastRowIDM As Long, i As Long, j As Long, newRow As Long
+   Dim found As Boolean
+   Dim loginsFilePath As String, idmFilePath As String, finalFilePath As String
+   ' Update with the actual file paths
+   loginsFilePath = "C:\Path\To\LoginsFile.xlsx"
+   idmFilePath = "C:\Path\To\IDMFile.xlsx"
+   finalFilePath = "C:\Path\To\FinalResultFile.xlsx"
+   ' Open the workbooks
+   Set wbLogins = Workbooks.Open(loginsFilePath)
+   Set wbIDM = Workbooks.Open(idmFilePath)
+   ' Set your sheet names here
+   Set wsLogins = wbLogins.Sheets(1) ' Update with your actual sheet name or index
+   Set wsIDM = wbIDM.Sheets(1) ' Update with your actual sheet name or index
+   ' Create a new workbook for the final result
+   Dim finalWb As Workbook
+   Set finalWb = Workbooks.Add
+   ' Set the final result sheet in the new workbook
+   Set wsFinal = finalWb.Sheets(1)
+   wsFinal.Name = "FinalResultSheet"
+   ' Find the last row in each sheet
+   lastRowLogins = wsLogins.Cells(wsLogins.Rows.Count, "G").End(xlUp).Row ' Assuming "user_email" is in Column G of logins sheet
+   lastRowIDM = wsIDM.Cells(wsIDM.Rows.Count, "D").End(xlUp).Row ' Assuming "EmailAddress" is in Column D of IDM sheet
+   ' Headers for the final result sheet
+   wsFinal.Cells(1, 1).Value = "user_email"
+   wsFinal.Cells(1, 2).Value = "RACFID"
+   wsFinal.Cells(1, 3).Value = "Name"
+   wsFinal.Cells(1, 4).Value = "Option"
+   wsFinal.Cells(1, 5).Value = "Req Tp"
+   ' Loop through each row in the logins sheet
+   For i = 2 To lastRowLogins
+       found = False
+       ' Check if the user_type is not "Collaborator"
+       If UCase(wsLogins.Cells(i, 12).Value) <> "COLLABORATOR" Then ' Assuming "user_type" is in Column L of logins sheet
+           ' Loop through each row in the IDM sheet
+           For j = 2 To lastRowIDM
+               ' Compare emails (case-insensitive and exclude special characters)
+               If CleanString(UCase(wsLogins.Cells(i, 7).Value)) = CleanString(UCase(wsIDM.Cells(j, 4).Value)) Then ' Assuming "user_email" is in Column G of logins sheet and "EmailAddress" is in Column D of IDM sheet
+                   found = True
+                   newRow = wsFinal.Cells(wsFinal.Rows.Count, "A").End(xlUp).Row + 1
+                   ' Append user_email, RACFID, and additional fields from IDM sheet
+                   wsFinal.Cells(newRow, 1).Value = wsLogins.Cells(i, 7).Value ' Assuming "user_email" is in Column G of logins sheet
+                   wsFinal.Cells(newRow, 2).Value = wsIDM.Cells(j, 1).Value ' Assuming "RACFID" is in Column A of IDM sheet
+                   wsFinal.Cells(newRow, 3).Value = wsIDM.Cells(j, 3).Value ' Assuming "Name" is in Column C of IDM sheet
+                   wsFinal.Cells(newRow, 4).Value = wsIDM.Cells(j, 21).Value ' Assuming "Option" is in Column U of IDM sheet
+                   wsFinal.Cells(newRow, 5).Value = wsIDM.Cells(j, 27).Value ' Assuming "Req Tp" is in Column AA of IDM sheet
+                   Exit For
+               End If
+           Next j
+       End If
+   Next i
+   ' Save the final result workbook
+   finalWb.SaveAs finalFilePath
+   ' Close all workbooks without saving changes
+   finalWb.Close False
+   wbLogins.Close False
+   wbIDM.Close False
+End Sub
+Function CleanString(inputString As String) As String
+   ' Function to clean special characters from a string
+   Dim cleanStr As String
+   Dim i As Integer, char As String
+   Dim validChars As String
+   validChars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789"
