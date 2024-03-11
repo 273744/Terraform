@@ -1,20 +1,37 @@
-Function ReplaceRole(role As String) As String
-   ' Function to replace roles based on specified mappings
-   Dim mappings As Variant
-   mappings = Array( _
-       Array("ACESS PROVISIONING: ACCESS PROVISIONING", "Server Admin"), _
-       Array("DATANAV USER ROLES: CONTRIBUTOR", "Composer"), _
-       Array("DATANAV USER ROLES: COLLABORATOR", "Viewer"), _
-       Array("DATANAV USER ROLES: DATA STEWARD", "Steward"), _
-       Array("ACCESS PROVISIONING ROLES: ACCESS PROVISIONING", "Server Admin") _
-   )
-   Dim i As Integer
-   For i = LBound(mappings) To UBound(mappings)
-       If UCase(role) = UCase(mappings(i)(0)) Then
-           ReplaceRole = mappings(i)(1)
-           Exit Function
-       End If
+Sub ReplaceOptionValues()
+   Dim wbIDM As Workbook, wsIDM As Worksheet
+   Dim lastRowIDM As Long, i As Long
+   ' Update with the actual file path
+   idmFilePath = "C:\Path\To\IDMFile.xlsx"
+   ' Open the IDM workbook
+   Set wbIDM = Workbooks.Open(idmFilePath)
+   ' Set the IDM sheet
+   Set wsIDM = wbIDM.Sheets(1) ' Update with your actual sheet name or index
+   ' Find the last row in the IDM sheet
+   lastRowIDM = wsIDM.Cells(wsIDM.Rows.Count, "U").End(xlUp).Row ' Assuming "Option" is in Column U
+   ' Loop through each row in the IDM sheet
+   For i = 2 To lastRowIDM
+       ' Replace option values
+       wsIDM.Cells(i, 21).Value = ReplaceOptionValue(UCase(wsIDM.Cells(i, 21).Value))
    Next i
-   ' If no match found, return the original role
-   ReplaceRole = role
+   ' Save and close the IDM workbook
+   wbIDM.Save
+   wbIDM.Close
+End Sub
+Function ReplaceOptionValue(optionValue As String) As String
+   ' Function to replace values in the "Option" column
+   Select Case UCase(optionValue)
+       Case "ACESS PROVISIONING: ACCESS PROVISIONING"
+           ReplaceOptionValue = "Server Admin"
+       Case "DATANAV USER ROLES: CONTRIBUTOR"
+           ReplaceOptionValue = "Composer"
+       Case "DATANAV USER ROLES: COLLABORATOR"
+           ReplaceOptionValue = "Viewer"
+       Case "DATANAV USER ROLES: DATA STEWARD"
+           ReplaceOptionValue = "Steward"
+       Case "ACCESS PROVISIONING ROLES: ACCESS PROVISIONING"
+           ReplaceOptionValue = "Server Admin"
+       Case Else
+           ReplaceOptionValue = optionValue
+   End Select
 End Function
