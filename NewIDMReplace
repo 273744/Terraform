@@ -1,0 +1,71 @@
+Sub ReplaceOptionValuesAndCreateSheet()
+   Dim wbIDM As Workbook, wsIDM As Worksheet, wsUpdatedSheet As Worksheet
+   Dim lastRowIDM As Long, i As Long, newRow As Long
+   ' Update with the actual file path
+   idmFilePath = "C:\Path\To\IDMFile.xlsx"
+   ' Open the IDM workbook
+   Set wbIDM = Workbooks.Open(idmFilePath)
+   ' Set the IDM sheet
+   Set wsIDM = wbIDM.Sheets(1) ' Update with your actual sheet name or index
+   ' Create a new workbook for the updated sheet
+   Dim updatedWb As Workbook
+   Set updatedWb = Workbooks.Add
+   ' Set the updated sheet in the new workbook
+   Set wsUpdatedSheet = updatedWb.Sheets(1)
+   wsUpdatedSheet.Name = "UpdatedIDMSheet"
+   ' Headers for the updated sheet
+   wsUpdatedSheet.Cells(1, 1).Value = "RACFID"
+   wsUpdatedSheet.Cells(1, 2).Value = "Name"
+   wsUpdatedSheet.Cells(1, 3).Value = "Email Address"
+   wsUpdatedSheet.Cells(1, 4).Value = "Updated_Option"
+   ' Find the last row in the IDM sheet
+   lastRowIDM = wsIDM.Cells(wsIDM.Rows.Count, "A").End(xlUp).Row ' Assuming "RACFID" is in Column A
+   ' Loop through each row in the IDM sheet
+   For i = 2 To lastRowIDM
+       ' Replace option values (case-insensitive, ignore spaces, and special characters)
+       Dim updatedOption As String
+       updatedOption = ReplaceOptionValue(wsIDM.Cells(i, 21).Value)
+       ' Append to the updated sheet
+       newRow = wsUpdatedSheet.Cells(wsUpdatedSheet.Rows.Count, "A").End(xlUp).Row + 1
+       wsUpdatedSheet.Cells(newRow, 1).Value = wsIDM.Cells(i, 1).Value ' Assuming "RACFID" is in Column A
+       wsUpdatedSheet.Cells(newRow, 2).Value = wsIDM.Cells(i, 3).Value ' Assuming "Name" is in Column C
+       wsUpdatedSheet.Cells(newRow, 3).Value = wsIDM.Cells(i, 4).Value ' Assuming "Email Address" is in Column D
+       wsUpdatedSheet.Cells(newRow, 4).Value = updatedOption
+   Next i
+   ' Save the updated workbook
+   updatedWb.SaveAs "C:\Path\To\UpdatedIDMSheet.xlsx" ' Update with the desired file path
+   ' Close both workbooks without saving changes
+   updatedWb.Close False
+   wbIDM.Close False
+End Sub
+Function ReplaceOptionValue(optionValue As String) As String
+   ' Function to replace values in the "Option" column (case-insensitive, ignore spaces, and special characters)
+   Dim cleanedOption As String
+   cleanedOption = CleanString(UCase(optionValue))
+   Select Case cleanedOption
+       Case CleanString("ACESS PROVISIONING: ACCESS PROVISIONING")
+           ReplaceOptionValue = "Server Admin"
+       Case CleanString("DATANAV USER ROLES: CONTRIBUTOR")
+           ReplaceOptionValue = "Composer"
+       Case CleanString("DATANAV USER ROLES: COLLABORATOR")
+           ReplaceOptionValue = "Viewer"
+       Case CleanString("DATANAV USER ROLES: DATA STEWARD")
+           ReplaceOptionValue = "Steward"
+       Case CleanString("ACCESS PROVISIONING ROLES: ACCESS PROVISIONING")
+           ReplaceOptionValue = "Server Admin"
+       Case Else
+           ReplaceOptionValue = optionValue
+   End Select
+End Function
+Function CleanString(inputString As String) As String
+   ' Function to clean special characters and spaces from a string
+   Dim cleanStr As String
+   Dim i As Integer, char As String
+   For i = 1 To Len(inputString)
+       char = Mid(inputString, i, 1)
+       If Asc(char) >= 65 And Asc(char) <= 90 Or Asc(char) >= 97 And Asc(char) <= 122 Or Asc(char) >= 48 And Asc(char) <= 57 Then
+           cleanStr = cleanStr & char
+       End If
+   Next i
+   CleanString = cleanStr
+End Function
