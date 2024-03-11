@@ -55,4 +55,39 @@ Sub MergeRACFIDs()
    Next i
    ' Save the final result workbook
    finalWb.SaveAs finalFilePath
-   ' Close
+   ' Close all workbooks without saving changes
+   finalWb.Close False
+   wbLogins.Close False
+   wbIDM.Close False
+End Sub
+Function CleanString(inputString As String) As String
+   ' Function to clean special characters from a string
+   Dim cleanStr As String
+   Dim i As Integer, char As String
+   Dim validChars As String
+   validChars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789"
+   For i = 1 To Len(inputString)
+       char = Mid(inputString, i, 1)
+       If InStr(validChars, char) > 0 Then
+           cleanStr = cleanStr & char
+       End If
+   Next i
+   CleanString = cleanStr
+End Function
+Function ReplaceRole(role As String) As String
+   ' Function to replace roles based on specified mappings
+   Select Case UCase(role)
+       Case "ACESS PROVISIONING: ACCESS PROVISIONING"
+           ReplaceRole = "Server Admin"
+       Case "DATANAV USER ROLES: CONTRIBUTOR"
+           ReplaceRole = "Composer"
+       Case "DATANAV USER ROLES: COLLABORATOR"
+           ReplaceRole = "Viewer"
+       Case "DATANAV USER ROLES: DATA STEWARD"
+           ReplaceRole = "Steward"
+       Case "ACCESS PROVISIONING ROLES: ACCESS PROVISIONING"
+           ReplaceRole = "Server Admin"
+       Case Else
+           ReplaceRole = role
+   End Select
+End Function
