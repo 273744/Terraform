@@ -11,27 +11,39 @@ Sub ReplaceOptionValues()
    lastRowIDM = wsIDM.Cells(wsIDM.Rows.Count, "U").End(xlUp).Row ' Assuming "Option" is in Column U
    ' Loop through each row in the IDM sheet
    For i = 2 To lastRowIDM
-       ' Replace option values
-       wsIDM.Cells(i, 21).Value = ReplaceOptionValue(UCase(wsIDM.Cells(i, 21).Value))
+       ' Replace option values (case-insensitive and ignore spaces)
+       wsIDM.Cells(i, 21).Value = ReplaceOptionValue(CleanString(UCase(wsIDM.Cells(i, 21).Value)))
    Next i
    ' Save and close the IDM workbook
    wbIDM.Save
    wbIDM.Close
 End Sub
 Function ReplaceOptionValue(optionValue As String) As String
-   ' Function to replace values in the "Option" column
-   Select Case UCase(optionValue)
-       Case "ACESS PROVISIONING: ACCESS PROVISIONING"
+   ' Function to replace values in the "Option" column (case-insensitive)
+   Select Case optionValue
+       Case CleanString("ACESS PROVISIONING: ACCESS PROVISIONING")
            ReplaceOptionValue = "Server Admin"
-       Case "DATANAV USER ROLES: CONTRIBUTOR"
+       Case CleanString("DATANAV USER ROLES: CONTRIBUTOR")
            ReplaceOptionValue = "Composer"
-       Case "DATANAV USER ROLES: COLLABORATOR"
+       Case CleanString("DATANAV USER ROLES: COLLABORATOR")
            ReplaceOptionValue = "Viewer"
-       Case "DATANAV USER ROLES: DATA STEWARD"
+       Case CleanString("DATANAV USER ROLES: DATA STEWARD")
            ReplaceOptionValue = "Steward"
-       Case "ACCESS PROVISIONING ROLES: ACCESS PROVISIONING"
+       Case CleanString("ACCESS PROVISIONING ROLES: ACCESS PROVISIONING")
            ReplaceOptionValue = "Server Admin"
        Case Else
            ReplaceOptionValue = optionValue
    End Select
+End Function
+Function CleanString(inputString As String) As String
+   ' Function to clean spaces from a string
+   Dim cleanStr As String
+   Dim i As Integer, char As String
+   For i = 1 To Len(inputString)
+       char = Mid(inputString, i, 1)
+       If char <> " " Then
+           cleanStr = cleanStr & char
+       End If
+   Next i
+   CleanString = cleanStr
 End Function
