@@ -12,31 +12,31 @@ Sub ReplaceOptionValues()
    ' Loop through each row in the IDM sheet
    For i = 2 To lastRowIDM
        ' Replace option values (case-insensitive and ignore spaces)
-       wsIDM.Cells(i, 21).Value = ReplaceOptionValue(CleanString(UCase(wsIDM.Cells(i, 21).Value)))
+       wsIDM.Cells(i, 21).Value = ReplaceOptionValue(wsIDM.Cells(i, 21).Value)
    Next i
    ' Save and close the IDM workbook
    wbIDM.Save
    wbIDM.Close
 End Sub
 Function ReplaceOptionValue(optionValue As String) As String
-   ' Function to replace values in the "Option" column (case-insensitive)
-   Select Case optionValue
-       Case CleanString("ACESS PROVISIONING: ACCESS PROVISIONING")
+   ' Function to replace values in the "Option" column (case-insensitive and ignore spaces)
+   Select Case UCase(ReplaceSpaces(optionValue))
+       Case UCase("ACESS PROVISIONING: ACCESS PROVISIONING")
            ReplaceOptionValue = "Server Admin"
-       Case CleanString("DATANAV USER ROLES: CONTRIBUTOR")
+       Case UCase("DATANAV USER ROLES: CONTRIBUTOR")
            ReplaceOptionValue = "Composer"
-       Case CleanString("DATANAV USER ROLES: COLLABORATOR")
+       Case UCase("DATANAV USER ROLES: COLLABORATOR")
            ReplaceOptionValue = "Viewer"
-       Case CleanString("DATANAV USER ROLES: DATA STEWARD")
+       Case UCase("DATANAV USER ROLES: DATA STEWARD")
            ReplaceOptionValue = "Steward"
-       Case CleanString("ACCESS PROVISIONING ROLES: ACCESS PROVISIONING")
+       Case UCase("ACCESS PROVISIONING ROLES: ACCESS PROVISIONING")
            ReplaceOptionValue = "Server Admin"
        Case Else
            ReplaceOptionValue = optionValue
    End Select
 End Function
-Function CleanString(inputString As String) As String
-   ' Function to clean spaces from a string
+Function ReplaceSpaces(inputString As String) As String
+   ' Function to remove spaces from a string
    Dim cleanStr As String
    Dim i As Integer, char As String
    For i = 1 To Len(inputString)
@@ -45,5 +45,5 @@ Function CleanString(inputString As String) As String
            cleanStr = cleanStr & char
        End If
    Next i
-   CleanString = cleanStr
+   ReplaceSpaces = cleanStr
 End Function
