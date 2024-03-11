@@ -1,0 +1,20 @@
+Function ReplaceRole(role As String) As String
+   ' Function to replace roles based on specified mappings
+   Dim mappings As Variant
+   mappings = Array( _
+       Array("ACESS PROVISIONING: ACCESS PROVISIONING", "Server Admin"), _
+       Array("DATANAV USER ROLES: CONTRIBUTOR", "Composer"), _
+       Array("DATANAV USER ROLES: COLLABORATOR", "Viewer"), _
+       Array("DATANAV USER ROLES: DATA STEWARD", "Steward"), _
+       Array("ACCESS PROVISIONING ROLES: ACCESS PROVISIONING", "Server Admin") _
+   )
+   Dim i As Integer
+   For i = LBound(mappings) To UBound(mappings)
+       If UCase(role) = UCase(mappings(i)(0)) Then
+           ReplaceRole = mappings(i)(1)
+           Exit Function
+       End If
+   Next i
+   ' If no match found, return the original role
+   ReplaceRole = role
+End Function
