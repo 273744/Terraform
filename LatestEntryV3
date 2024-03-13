@@ -1,0 +1,45 @@
+Sub KeepOnlyLatestEntries()
+   Dim wb As Workbook
+   Dim ws As Worksheet
+   Dim lastRow As Long
+   Dim racfIDCol As Range, emailCol As Range, roleCol As Range, secApprvDtCol As Range
+   Dim racfID As String, email As String, role As String
+   Dim maxDates As Object
+   Dim i As Long
+   ' Specify the file path and sheet name
+   Const FilePath As String = "C:\Path\To\Your\File.xlsx"
+   Const SheetName As String = "Sheet1"
+   ' Open the workbook
+   Set wb = Workbooks.Open(FilePath)
+   ' Specify the worksheet containing your data
+   Set ws = wb.Sheets(SheetName)
+   ' Find the last row with data in column A (assuming RACF ID is in column A)
+   lastRow = ws.Cells(ws.Rows.Count, "A").End(xlUp).Row
+   ' Define the ranges for RACF ID, Email, Role, and secapproved date columns
+   Set racfIDCol = ws.Range("A2:A" & lastRow)
+   Set emailCol = ws.Range("D2:D" & lastRow)
+   Set roleCol = ws.Range("U2:U" & lastRow)
+   Set secApprvDtCol = ws.Range("Z2:Z" & lastRow)
+   ' Create a dictionary to store the maximum date for each RACF ID
+   Set maxDates = CreateObject("Scripting.Dictionary")
+   ' Loop through each row to find the maximum secapproved date for each RACF ID
+   For i = 2 To lastRow
+       racfID = ws.Cells(i, 1).Value ' Assuming RACF ID is in column A
+       If Not maxDates.Exists(racfID) Then
+           maxDates(racfID) = ws.Cells(i, 26).Value ' Assuming secapproved date is in column Z
+       ElseIf ws.Cells(i, 26).Value > maxDates(racfID) Then
+           maxDates(racfID) = ws.Cells(i, 26).Value ' Assuming secapproved date is in column Z
+       End If
+   Next i
+   ' Loop through each row again to delete rows that are not the latest entries
+   For i = lastRow To 2 Step -1
+       racfID = ws.Cells(i, 1).Value ' Assuming RACF ID is in column A
+       If ws.Cells(i, 26).Value <> maxDates(racfID) Then ' Assuming secapproved date is in column Z
+           ws.Rows(i).Delete
+       End If
+   Next i
+   ' Save and close the workbook
+   wb.Save
+   wb.Close
+   MsgBox "Latest entries saved successfully.", vbInformation
+End Sub
