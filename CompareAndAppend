@@ -1,0 +1,79 @@
+Sub CompareAndAppendToFinalReport()
+   Dim wbIDM As Workbook, wsIDM As Worksheet
+   Dim wbLogin As Workbook, wsLogin As Worksheet
+   Dim wbFinal As Workbook, wsFinal As Worksheet
+   Dim lastRowIDM As Long, lastRowLogin As Long, i As Long, j As Long, newRow As Long
+   ' Update with the actual file paths
+   idmFilePath = "C:\Path\To\UpdatedIDMSheet.xlsx"
+   loginFilePath = "C:\Path\To\LoginFile.xlsx"
+   ' Open the IDM workbook
+   Set wbIDM = Workbooks.Open(idmFilePath)
+   ' Set the IDM sheet
+   Set wsIDM = wbIDM.Sheets(1) ' Update with your actual sheet name or index
+   ' Open the Login workbook
+   Set wbLogin = Workbooks.Open(loginFilePath)
+   ' Set the Login sheet
+   Set wsLogin = wbLogin.Sheets(1) ' Update with your actual sheet name or index
+   ' Create a new workbook for the final report
+   Dim finalWb As Workbook
+   Set finalWb = Workbooks.Add
+   ' Set the final report sheet in the new workbook
+   Set wsFinal = finalWb.Sheets(1)
+   wsFinal.Name = "FinalReport"
+   ' Headers for the final report sheet
+   wsFinal.Cells(1, 1).Value = "RACFID"
+   wsFinal.Cells(1, 2).Value = "Name"
+   wsFinal.Cells(1, 3).Value = "Email Address"
+   wsFinal.Cells(1, 4).Value = "Option"
+   ' Find the last row in the IDM and Login sheets
+   lastRowIDM = wsIDM.Cells(wsIDM.Rows.Count, "A").End(xlUp).Row ' Assuming "RACFID" is in Column A
+   lastRowLogin = wsLogin.Cells(wsLogin.Rows.Count, "G").End(xlUp).Row ' Assuming "Email Address" is in Column G
+   ' Loop through each row in the IDM sheet
+   For i = 2 To lastRowIDM
+       Dim idmEmail As String
+       Dim idmOption As String
+       idmEmail = CleanString(UCase(wsIDM.Cells(i, 3).Value)) ' Assuming "Email Address" is in Column C
+       idmOption = CleanString(UCase(wsIDM.Cells(i, 4).Value)) ' Assuming "Option" is in Column D
+       ' Flag to check if the record should be appended to the final report
+       Dim appendRecord As Boolean
+       appendRecord = True
+       ' Loop through each row in the Login sheet to find matching records
+       For j = 2 To lastRowLogin
+           Dim loginEmail As String
+           Dim loginOption As String
+           loginEmail = CleanString(UCase(wsLogin.Cells(j, 7).Value)) ' Assuming "Email Address" is in Column G
+           loginOption = CleanString(UCase(wsLogin.Cells(j, 12).Value)) ' Assuming "Option" is in Column L
+           ' Compare email address and option values (ignoring case sensitivity and special characters)
+           If idmEmail = loginEmail And idmOption = loginOption Then
+               appendRecord = False ' Matching record found, do not append
+               Exit For
+           End If
+       Next j
+       ' If no matching record found, append to the final report
+       If appendRecord Then
+           newRow = wsFinal.Cells(wsFinal.Rows.Count, "A").End(xlUp).Row + 1
+           wsFinal.Cells(newRow, 1).Value = wsIDM.Cells(i, 1).Value ' Assuming "RACFID" is in Column A
+           wsFinal.Cells(newRow, 2).Value = wsIDM.Cells(i, 2).Value ' Assuming "Name" is in Column B
+           wsFinal.Cells(newRow, 3).Value = wsIDM.Cells(i, 3).Value ' Assuming "Email Address" is in Column C
+           wsFinal.Cells(newRow, 4).Value = wsIDM.Cells(i, 4).Value ' Assuming "Option" is in Column D
+       End If
+   Next i
+   ' Save the final report workbook
+   finalWb.SaveAs "C:\Path\To\FinalReport.xlsx" ' Update with the desired file path
+   ' Close all workbooks without saving changes
+   finalWb.Close False
+   wbIDM.Close False
+   wbLogin.Close False
+End Sub
+Function CleanString(inputString As String) As String
+   ' Function to clean special characters and spaces from a string
+   Dim cleanStr As String
+   Dim i As Integer, char As String
+   For i = 1 To Len(inputString)
+       char = Mid(inputString, i, 1)
+       If Asc(char) >= 65 And Asc(char) <= 90 Or Asc(char) >= 97 And Asc(char) <= 122 Or Asc(char) >= 48 And Asc(char) <= 57 Then
+           cleanStr = cleanStr & char
+       End If
+   Next i
+   CleanString = cleanStr
+End Function
