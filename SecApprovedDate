@@ -1,0 +1,102 @@
+Sub CreateNewSheetWithLatestSecApprvDt()
+   Dim wbIDM As Workbook, wsIDM As Worksheet, wsNewSheet As Worksheet
+   Dim lastRowIDM As Long, i As Long, newRow As Long
+   Dim racfID As String, maxSecApprvDt As Date, currentSecApprvDt As Date
+   ' Update with the actual file path
+   idmFilePath = "C:\Path\To\IDMFile.xlsx"
+   ' Open the IDM workbook
+   Set wbIDM = Workbooks.Open(idmFilePath)
+   ' Set the IDM sheet
+   Set wsIDM = wbIDM.Sheets(1) ' Update with your actual sheet name or index
+   ' Create a new workbook for the new sheet
+   Dim newWb As Workbook
+   Set newWb = Workbooks.Add
+   ' Set the new sheet in the new workbook
+   Set wsNewSheet = newWb.Sheets(1)
+   wsNewSheet.Name = "NewIDMSheet"
+   ' Headers for the new sheet
+   wsNewSheet.Cells(1, 1).Value = "RACFID"
+   wsNewSheet.Cells(1, 2).Value = "Name"
+   wsNewSheet.Cells(1, 3).Value = "Email Address"
+   wsNewSheet.Cells(1, 4).Value = "Option"
+   wsNewSheet.Cells(1, 5).Value = "secApprvDt"
+   ' Find the last row in the IDM sheet
+   lastRowIDM = wsIDM.Cells(wsIDM.Rows.Count, "A").End(xlUp).Row ' Assuming "RACFID" is in Column A
+   ' Loop through each row in the IDM sheet
+   For i = 2 To lastRowIDM
+       ' Get RACFID, Name, Email Address, Option, and secApprvDt
+       racfID = wsIDM.Cells(i, 1).Value ' Assuming "RACFID" is in Column A
+       Dim name As String
+       name = wsIDM.Cells(i, 3).Value ' Assuming "Name" is in Column C
+       Dim email As String
+       email = wsIDM.Cells(i, 4).Value ' Assuming "Email Address" is in Column D
+       Dim optionValue As String
+       optionValue = ReplaceOptionValue(wsIDM.Cells(i, 21).Value) ' Assuming "Option" is in Column U
+       currentSecApprvDt = wsIDM.Cells(i, 26).Value ' Assuming "secApprvDt" is in Column Z
+       ' Check if RACFID already exists in the new sheet
+       Dim foundRow As Long
+       foundRow = FindRACFID(wsNewSheet, racfID)
+       ' If RACFID doesn't exist or the secApprvDt is newer, update the record
+       If foundRow = 0 Or currentSecApprvDt > maxSecApprvDt Then
+           ' Update maxSecApprvDt for the RACFID
+           maxSecApprvDt = currentSecApprvDt
+           ' Update or append to the new sheet
+           If foundRow = 0 Then
+               newRow = wsNewSheet.Cells(wsNewSheet.Rows.Count, "A").End(xlUp).Row + 1
+           Else
+               newRow = foundRow
+           End If
+           wsNewSheet.Cells(newRow, 1).Value = racfID
+           wsNewSheet.Cells(newRow, 2).Value = name
+           wsNewSheet.Cells(newRow, 3).Value = email
+           wsNewSheet.Cells(newRow, 4).Value = optionValue
+           wsNewSheet.Cells(newRow, 5).Value = Format(currentSecApprvDt, "mm/dd/yyyy")
+       End If
+   Next i
+   ' Save the new workbook
+   newWb.SaveAs "C:\Path\To\NewIDMSheet.xlsx" ' Update with the desired file path
+   ' Close both workbooks without saving changes
+   newWb.Close False
+   wbIDM.Close False
+End Sub
+Function ReplaceOptionValue(optionValue As String) As String
+   ' Function to replace values in the "Option" column (case-insensitive, ignore spaces, and special characters)
+   Dim cleanedOption As String
+   cleanedOption = CleanString(UCase(optionValue))
+   Select Case cleanedOption
+       Case CleanString("ACESS PROVISIONING: ACCESS PROVISIONING")
+           ReplaceOptionValue = "Server Admin"
+       Case CleanString("DATANAV USER ROLES: CONTRIBUTOR")
+           ReplaceOptionValue = "Composer"
+       Case CleanString("DATANAV USER ROLES: COLLABORATOR")
+           ReplaceOptionValue = "Viewer"
+       Case CleanString("DATANAV USER ROLES: DATA STEWARD")
+           ReplaceOptionValue = "Steward"
+       Case CleanString("ACCESS PROVISIONING ROLES: ACCESS PROVISIONING")
+           ReplaceOptionValue = "Server Admin"
+       Case Else
+           ReplaceOptionValue = optionValue
+   End Select
+End Function
+Function CleanString(inputString As String) As String
+   ' Function to clean special characters and spaces from a string
+   Dim cleanStr As String
+   Dim i As Integer, char As String
+   For i = 1 To Len(inputString)
+       char = Mid(inputString, i, 1)
+       If Asc(char) >= 65 And Asc(char) <= 90 Or Asc(char) >= 97 And Asc(char) <= 122 Or Asc(char) >= 48 And Asc(char) <= 57 Then
+           cleanStr = cleanStr & char
+       End If
+   Next i
+   CleanString = cleanStr
+End Function
+Function FindRACFID(ws As Worksheet, racfID As String) As Long
+   ' Function to find the row number of a given RACFID in a worksheet
+   Dim rng As Range
+   Set rng = ws.Columns(1).Find(What:=racfID, LookIn:=xlValues, LookAt:=xlWhole)
+   If Not rng Is Nothing Then
+       FindRACFID = rng.Row
+   Else
+       FindRACFID = 0
+   End If
+End Function
