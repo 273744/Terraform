@@ -50,7 +50,7 @@ Sub CreateNewSheetWithLatestSecApprvDt()
            wsNewSheet.Cells(newRow, 2).Value = name
            wsNewSheet.Cells(newRow, 3).Value = email
            wsNewSheet.Cells(newRow, 4).Value = optionValue
-           wsNewSheet.Cells(newRow, 5).Value = Format(currentSecApprvDt, "mm/dd/yyyy")
+           wsNewSheet.Cells(newRow, 5).Value = Format(currentSecApprvDt, "mm/dd/yyyy") ' Ensure date format consistency
        End If
    Next i
    ' Save the new workbook
