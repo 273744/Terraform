@@ -1,0 +1,71 @@
+Sub CompareAndGenerateFinalReport()
+   Dim idmReport As Worksheet
+   Dim loginReport As Worksheet
+   Dim finalReport As Worksheet
+   Dim idmLastRow As Long
+   Dim loginLastRow As Long
+   Dim finalLastRow As Long
+   Dim idmEmailCol As Range
+   Dim loginEmailCol As Range
+   Dim idmRoleCol As Range
+   Dim loginRoleCol As Range
+   Dim idmRacfidCol As Range
+   Dim idmNameCol As Range
+   Dim idmEmail As String
+   Dim loginEmail As String
+   Dim idmRole As String
+   Dim loginRole As String
+   Dim idmRacfid As String
+   Dim idmName As String
+   Dim finalRow As Long
+   ' Set references to the worksheets
+   Set idmReport = ThisWorkbook.Sheets("IDMReport") ' Update with your actual sheet name
+   Set loginReport = ThisWorkbook.Sheets("LoginReport") ' Update with your actual sheet name
+   Set finalReport = ThisWorkbook.Sheets("FinalReport") ' Update with your actual sheet name
+   ' Find the last row in each report
+   idmLastRow = idmReport.Cells(idmReport.Rows.Count, "A").End(xlUp).Row
+   loginLastRow = loginReport.Cells(loginReport.Rows.Count, "F").End(xlUp).Row
+   finalLastRow = finalReport.Cells(finalReport.Rows.Count, "A").End(xlUp).Row
+   ' Set ranges for email and role columns in each report
+   Set idmEmailCol = idmReport.Range("C2:C" & idmLastRow)
+   Set loginEmailCol = loginReport.Range("F2:F" & loginLastRow)
+   Set idmRoleCol = idmReport.Range("D2:D" & idmLastRow)
+   Set loginRoleCol = loginReport.Range("L2:L" & loginLastRow)
+   Set idmRacfidCol = idmReport.Range("A2:A" & idmLastRow)
+   Set idmNameCol = idmReport.Range("B2:B" & idmLastRow)
+   ' Loop through each row in IDM report
+   For Each idmEmailCell In idmEmailCol
+       idmEmail = CleanString(idmEmailCell.Value)
+       idmRole = CleanString(idmRoleCol.Cells(idmEmailCell.Row - 1, 1).Value)
+       idmRacfid = idmRacfidCol.Cells(idmEmailCell.Row - 1, 1).Value
+       idmName = idmNameCol.Cells(idmEmailCell.Row - 1, 1).Value
+       ' Check if the email exists in login report
+       Set foundEmail = loginEmailCol.Find(What:=idmEmail, LookIn:=xlValues, LookAt:=xlWhole, MatchCase:=False)
+       If Not foundEmail Is Nothing Then ' Email found in login report
+           loginRole = CleanString(loginRoleCol.Cells(foundEmail.Row - 1, 1).Value)
+           ' Check if roles are different
+           If idmRole <> loginRole Then
+               finalRow = finalLastRow + 1
+               finalReport.Cells(finalRow, 1).Value = idmRacfid
+               finalReport.Cells(finalRow, 2).Value = idmName
+               finalReport.Cells(finalRow, 3).Value = idmEmail
+               finalReport.Cells(finalRow, 4).Value = idmRole
+               finalReport.Cells(finalRow, 5).Value = loginRole
+               finalLastRow = finalRow
+           End If
+       End If
+   Next idmEmailCell
+   MsgBox "Comparison and generation of final report completed.", vbInformation
+End Sub
+Function CleanString(inputString As String) As String
+   ' Function to clean special characters and spaces from a string
+   Dim cleanStr As String
+   Dim i As Integer, char As String
+   For i = 1 To Len(inputString)
+       char = Mid(inputString, i, 1)
+       If Asc(char) >= 65 And Asc(char) <= 90 Or Asc(char) >= 97 And Asc(char) <= 122 Or Asc(char) >= 48 And Asc(char) <= 57 Then
+           cleanStr = cleanStr & char
+       End If
+   Next i
+   CleanString = cleanStr
+End Function
