@@ -1,0 +1,88 @@
+Sub CompareAndGenerateFinalReport()
+   Dim idmReport As Worksheet
+   Dim loginReport As Worksheet
+   Dim finalReport As Workbook
+   Dim idmLastRow As Long
+   Dim loginLastRow As Long
+   Dim finalLastRow As Long
+   Dim idmRacfid As String
+   Dim idmEmail As String
+   Dim idmRole As String
+   Dim loginEmail As String
+   Dim loginRole As String
+   Dim finalRow As Long
+   Dim idmRow As Long
+   Dim loginRow As Long
+   Dim folderPath As String
+   ' Specify the full path to the IDM report workbook and login report workbook
+   Dim idmFilePath As String
+   Dim loginFilePath As String
+   idmFilePath = "C:\Path\To\IDMReport.xlsx"
+   loginFilePath = "C:\Path\To\LoginReport.xlsx"
+   ' Specify the folder path to save the final report
+   folderPath = "C:\Path\To\Reports"
+   ' Set references to the worksheets
+   Set idmReport = Workbooks.Open(idmFilePath).Sheets("IDMReport")
+   Set loginReport = Workbooks.Open(loginFilePath).Sheets("LoginReport")
+   ' Create a new workbook for the final report
+   Set finalReport = Workbooks.Add
+   finalReport.SaveAs folderPath & "\FinalReport.xlsx"
+   ' Set the final report worksheet
+   Set finalReport = Workbooks("FinalReport.xlsx").Sheets(1)
+   ' Find the last row in each report
+   idmLastRow = idmReport.Cells(idmReport.Rows.Count, "A").End(xlUp).Row
+   loginLastRow = loginReport.Cells(loginReport.Rows.Count, "F").End(xlUp).Row
+   ' Initialize the final report
+   finalLastRow = 1
+   ' Loop through each row in IDM report
+   For idmRow = 2 To idmLastRow ' Assuming row 1 is header
+       idmRacfid = idmReport.Cells(idmRow, 1).Value
+       idmEmail = CleanString(idmReport.Cells(idmRow, 3).Value)
+       idmRole = CleanString(idmReport.Cells(idmRow, 4).Value)
+       ' Check if the email exists in login report
+       For loginRow = 2 To loginLastRow ' Assuming row 1 is header
+           loginEmail = CleanString(loginReport.Cells(loginRow, 6).Value)
+           If idmEmail = loginEmail Then
+               loginRole = CleanString(loginReport.Cells(loginRow, 12).Value)
+               ' Check if roles are different
+               If idmRole <> loginRole Then
+                   finalRow = finalLastRow + 1
+                   finalReport.Cells(finalRow, 1).Value = idmRacfid
+                   finalReport.Cells(finalRow, 2).Value = idmEmail
+                   finalReport.Cells(finalRow, 3).Value = idmRole
+                   finalReport.Cells(finalRow, 4).Value = loginRole
+                   finalLastRow = finalRow
+               End If
+               Exit For ' Exit loop once email match found
+           End If
+       Next loginRow
+   Next idmRow
+   ' Optional: Format final report headers
+   finalReport.Cells(1, 1).Value = "RACFID"
+   finalReport.Cells(1, 2).Value = "Email"
+   finalReport.Cells(1, 3).Value = "IDM Role"
+   finalReport.Cells(1, 4).Value = "Login Role"
+   ' Save and close the final report
+   finalReport.Save
+   finalReport.Close False
+   ' Close the IDM report and login report workbooks without saving changes
+   Workbooks("IDMReport.xlsx").Close False
+   Workbooks("LoginReport.xlsx").Close False
+   MsgBox "Comparison and generation of final report completed. Final report saved at: " & folderPath & "\FinalReport.xlsx", vbInformation
+End Sub
+Function CleanString(inputString As Variant) As String
+   ' Function to clean special characters and spaces from a string
+   Dim cleanStr As String
+   Dim i As Integer
+   Dim char As String
+   ' Check if inputString is not empty and is a string
+   If Not IsEmpty(inputString) And VarType(inputString) = vbString Then
+       For i = 1 To Len(inputString)
+           char = Mid(inputString, i, 1)
+           If Asc(char) >= 65 And Asc(char) <= 90 Or Asc(char) >= 97 And Asc(char) <= 122 Or Asc(char) >= 48 And Asc(char) <= 57 Then
+               cleanStr = cleanStr & char
+           End If
+       Next i
+   End If
+   CleanString = cleanStr
+End Function
