@@ -1,0 +1,76 @@
+Sub CompareAndGenerateFinalReport()
+   Dim wbIDM As Workbook, wbLogin As Workbook, wbFinal As Workbook
+   Dim wsIDM As Worksheet, wsLogin As Worksheet, wsFinal As Worksheet
+   Dim lastRowIDM As Long, lastRowLogin As Long, lastRowFinal As Long
+   Dim i As Long, j As Long, newRow As Long
+   Dim idmRACFID As String, idmName As String, idmEmail As String, idmOption As String
+   Dim loginEmail As String, loginOption As String
+   Dim foundMatch As Boolean
+   ' Open IDM report workbook
+   Set wbIDM = Workbooks.Open("Path_to_IDM_report.xlsx") ' Update with actual file path
+   Set wsIDM = wbIDM.Sheets(1) ' Update with actual sheet index or name
+   ' Open login report workbook
+   Set wbLogin = Workbooks.Open("Path_to_login_report.xlsx") ' Update with actual file path
+   Set wsLogin = wbLogin.Sheets(1) ' Update with actual sheet index or name
+   ' Create a new workbook for the final report
+   Set wbFinal = Workbooks.Add
+   Set wsFinal = wbFinal.Sheets(1)
+   wsFinal.Name = "FinalReport"
+   ' Headers for the final report
+   wsFinal.Cells(1, 1).Value = "RACFID"
+   wsFinal.Cells(1, 2).Value = "Name"
+   wsFinal.Cells(1, 3).Value = "Email Address"
+   wsFinal.Cells(1, 4).Value = "Option"
+   ' Find the last row in IDM report, login report, and final report
+   lastRowIDM = wsIDM.Cells(wsIDM.Rows.Count, "A").End(xlUp).Row
+   lastRowLogin = wsLogin.Cells(wsLogin.Rows.Count, "F").End(xlUp).Row
+   lastRowFinal = 1 ' Initialize to header row
+   ' Loop through each row in IDM report
+   For i = 2 To lastRowIDM
+       idmRACFID = wsIDM.Cells(i, 1).Value
+       idmName = wsIDM.Cells(i, 2).Value
+       idmEmail = CleanString(wsIDM.Cells(i, 3).Value) ' Clean email address
+       idmOption = CleanString(wsIDM.Cells(i, 4).Value) ' Clean option
+       ' Reset found match flag for each IDM record
+       foundMatch = False
+       ' Loop through each row in login report
+       For j = 2 To lastRowLogin
+           loginEmail = CleanString(wsLogin.Cells(j, 6).Value) ' Clean email address
+           loginOption = CleanString(wsLogin.Cells(j, 12).Value) ' Clean option
+           ' Check if email addresses match partially due to special characters
+           If InStr(idmEmail, loginEmail) > 0 Or InStr(loginEmail, idmEmail) > 0 Then
+               ' Check if options match
+               If idmOption = loginOption Then
+                   foundMatch = True
+                   Exit For
+               End If
+           End If
+       Next j
+       ' If no match found, add the entry to final report
+       If Not foundMatch Then
+           newRow = wsFinal.Cells(wsFinal.Rows.Count, "A").End(xlUp).Row + 1
+           wsFinal.Cells(newRow, 1).Value = idmRACFID
+           wsFinal.Cells(newRow, 2).Value = idmName
+           wsFinal.Cells(newRow, 3).Value = wsIDM.Cells(i, 3).Value
+           wsFinal.Cells(newRow, 4).Value = wsIDM.Cells(i, 4).Value
+           lastRowFinal = newRow ' Update last row in final report
+       End If
+   Next i
+   ' Save the final report
+   wbFinal.SaveAs "Path_to_FinalReport.xlsx" ' Update with desired file path and name
+   ' Close all workbooks without saving changes
+   wbIDM.Close False
+   wbLogin.Close False
+   wbFinal.Close False
+   MsgBox "Final report generated successfully.", vbInformation
+End Sub
+Function CleanString(inputString As String) As String
+   ' Function to clean special characters and spaces from a string and make it lowercase
+   Dim cleanStr As String
+   Dim i As Integer, char As String
+   For i = 1 To Len(inputString)
+       char = Mid(inputString, i, 1)
+       If Asc(char) >= 97 And Asc(char) <= 122 Or Asc(char) >= 48 And Asc(char) <= 57 Then
+           cleanStr = cleanStr & LCase(char)
+       End If
+   Next i
