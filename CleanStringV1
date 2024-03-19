@@ -1,0 +1,17 @@
+Function CleanString(inputString As Variant) As String
+   ' Function to clean special characters and spaces from a string and convert to lowercase
+   Dim cleanStr As String
+   Dim i As Integer
+   Dim char As String
+   ' Check if inputString is not empty and is a string
+   If Not IsError(inputString) And Not IsEmpty(inputString) And VarType(inputString) = vbString Then
+       inputString = LCase(inputString) ' Convert to lowercase
+       For i = 1 To Len(inputString)
+           char = Mid(inputString, i, 1)
+           If Asc(char) >= 97 And Asc(char) <= 122 Or Asc(char) >= 48 And Asc(char) <= 57 Then
+               cleanStr = cleanStr & char
+           End If
+       Next i
+   End If
+   CleanString = cleanStr
+End Function
