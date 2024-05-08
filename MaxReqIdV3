@@ -1,0 +1,108 @@
+[15:50] Aitha, Srikanth (Cognizant)
+Sub FilterMaxRequestNo()
+
+    Dim filePath As String
+
+    Dim sheetName As String
+
+    Dim wb As Workbook
+
+    Dim ws As Worksheet
+
+    Dim lastRow As Long
+
+    Dim dict As Object
+
+    Dim racfid As String
+
+    Dim maxRequestNo As Long
+
+    Dim currentRequestNo As Long
+
+    Dim i As Long
+
+    ' Specify the path of the Excel file
+
+    filePath = "C:\Path\To\Your\File.xlsx" ' Update with your file path
+
+    ' Specify the sheet name
+
+    sheetName = "Sheet1" ' Update with your sheet name
+
+    ' Open the workbook
+
+    Set wb = Workbooks.Open(Filename:=filePath)
+
+    Set ws = wb.Sheets(sheetName)
+
+    ' Get the last row of data
+
+    lastRow = ws.Cells(ws.Rows.Count, "A").End(xlUp).Row
+
+    ' Create a dictionary to store max requestno for each racfid
+
+    Set dict = CreateObject("Scripting.Dictionary")
+
+    ' Loop through the data to find max requestno for each racfid
+
+    For i = 2 To lastRow
+
+        racfid = ws.Cells(i, 1).Value
+
+        currentRequestNo = ws.Cells(i, 20).Value ' Assuming requestno is in column T
+
+        If dict.exists(racfid) Then
+
+            maxRequestNo = dict(racfid)
+
+            If currentRequestNo > maxRequestNo Then
+
+                dict(racfid) = currentRequestNo
+
+            End If
+
+        Else
+
+            dict.Add racfid, currentRequestNo
+
+        End If
+
+    Next i
+
+    ' Clear existing data
+
+    ws.Range("A2:T" & lastRow).ClearContents
+
+    ' Output max requestno for each racfid to the worksheet
+
+    For i = 2 To lastRow
+
+        racfid = ws.Cells(i, 1).Value
+
+        currentRequestNo = ws.Cells(i, 20).Value ' Assuming requestno is in column T
+
+        If currentRequestNo = dict(racfid) Then
+
+            ' Keep the row if it has the max requestno for its racfid
+
+            ' Do nothing, values are already kept intact
+
+        Else
+
+            ' Clear non-maximum rows
+
+            ws.Rows(i).ClearContents
+
+        End If
+
+    Next i
+
+    ' Close and save the workbook
+
+    wb.Save
+
+    wb.Close
+
+    MsgBox "Filtering completed for sheet '" & sheetName & "' in file '" & filePath & "'."
+
+End Sub
