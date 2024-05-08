@@ -1,0 +1,40 @@
+Sub RemoveOldRequests(filePath As String, sheetName As String)
+   Dim wb As Workbook
+   Dim ws As Worksheet
+   Dim lastRow As Long
+   Dim dict As Object
+   Dim userId As String
+   Dim requestNo As Long
+   Dim i As Long
+   ' Open the workbook
+   Set wb = Workbooks.Open(Filename:=filePath)
+   Set ws = wb.Sheets(sheetName)
+   ' Get the last row of data
+   lastRow = ws.Cells(ws.Rows.Count, "A").End(xlUp).Row
+   ' Create a dictionary to store max requestno for each userid
+   Set dict = CreateObject("Scripting.Dictionary")
+   ' Loop through the data to find max requestno for each userid
+   For i = 2 To lastRow
+       userId = ws.Cells(i, 1).Value
+       requestNo = ws.Cells(i, 20).Value ' Assuming requestno is in column T
+       If dict.exists(userId) Then
+           If requestNo > dict(userId) Then
+               dict(userId) = requestNo
+           End If
+       Else
+           dict.Add userId, requestNo
+       End If
+   Next i
+   ' Loop through the data again to remove older requests
+   For i = lastRow To 2 Step -1
+       userId = ws.Cells(i, 1).Value
+       requestNo = ws.Cells(i, 20).Value ' Assuming requestno is in column T
+       If requestNo <> dict(userId) Then
+           ws.Rows(i).Delete
+       End If
+   Next i
+   ' Close and save the workbook
+   wb.Save
+   wb.Close
+   MsgBox "Old requests removed for sheet '" & sheetName & "' in file '" & filePath & "'."
+End Sub
