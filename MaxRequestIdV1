@@ -1,0 +1,56 @@
+Sub RunFilterMacro()
+   Dim filePath As String
+   Dim sheetName As String
+   Dim wb As Workbook
+   ' Specify the path of the Excel file
+   filePath = "C:\Path\To\Your\File.xlsx" ' Update with your file path
+   ' Specify the sheet name
+   sheetName = "Sheet1" ' Update with your sheet name
+   ' Open the workbook
+   Set wb = Workbooks.Open(Filename:=filePath)
+   ' Run the filtering macro
+   FilterMaxRequestNo wb, sheetName
+   ' Save and close the workbook
+   wb.Save
+   wb.Close
+   MsgBox "Filtering completed for sheet '" & sheetName & "' in file '" & filePath & "'."
+End Sub
+Sub FilterMaxRequestNo(wb As Workbook, sheetName As String)
+   Dim ws As Worksheet
+   Dim lastRow As Long
+   ' Check if sheetName exists
+   On Error Resume Next
+   Set ws = wb.Sheets(sheetName)
+   On Error GoTo 0
+   If ws Is Nothing Then
+       MsgBox "Sheet '" & sheetName & "' not found."
+       Exit Sub
+   End If
+   ' Sort data by racfid in ascending order and requestno in descending order
+   With ws.Sort
+       .SortFields.Clear
+       .SortFields.Add Key:=Range("A:A"), Order:=xlAscending
+       .SortFields.Add Key:=Range("T:T"), Order:=xlDescending
+       .SetRange ws.UsedRange
+       .Header = xlYes
+       .Apply
+   End With
+   ' Get the last row of data
+   lastRow = ws.Cells(ws.Rows.Count, "A").End(xlUp).Row
+   ' Identify unique racfid values
+   For i = 2 To lastRow
+       If ws.Cells(i, 1).Value <> ws.Cells(i - 1, 1).Value Then
+           ws.Cells(i, 26).Value = 1
+       Else
+           ws.Cells(i, 26).Value = 0
+       End If
+   Next i
+   ' Filter and keep only rows with unique racfid values
+   ws.Range("A1:Z" & lastRow).AutoFilter Field:=26, Criteria1:=1
+   ' Remove duplicates in racfid column
+   ws.Range("A1:A" & lastRow).RemoveDuplicates Columns:=1, Header:=xlYes
+   ' Remove filter
+   ws.AutoFilterMode = False
+   ' Clear helper column
+   ws.Range("Z:Z").Clear
+End Sub
