@@ -1,0 +1,60 @@
+Sub FilterLatestRequests(filePath As String, sheetName As String)
+   Dim wb As Workbook
+   Dim ws As Worksheet
+   Dim lastRow As Long
+   Dim dict As Object
+   Dim userId As String
+   Dim maxRequestNo As Long
+   Dim currentRequestNo As Long
+   Dim i As Long
+   ' Open the workbook
+   Set wb = Workbooks.Open(Filename:=filePath)
+   Set ws = wb.Sheets(sheetName)
+   ' Get the last row of data
+   lastRow = ws.Cells(ws.Rows.Count, "A").End(xlUp).Row
+   ' Create a dictionary to store max requestno for each userid
+   Set dict = CreateObject("Scripting.Dictionary")
+   ' Loop through the data to find max requestno for each userid
+   For i = 2 To lastRow
+       userId = ws.Cells(i, 1).Value
+       currentRequestNo = ws.Cells(i, 20).Value ' Assuming requestno is in column T
+       If dict.exists(userId) Then
+           maxRequestNo = dict(userId)
+           If currentRequestNo > maxRequestNo Then
+               dict(userId) = currentRequestNo
+           End If
+       Else
+           dict.Add userId, currentRequestNo
+       End If
+   Next i
+   ' Clear existing data
+   ws.Range("A2:T" & lastRow).ClearContents
+   ' Output max requestno for each userid to the worksheet
+   For i = 2 To lastRow
+       userId = ws.Cells(i, 1).Value
+       currentRequestNo = ws.Cells(i, 20).Value ' Assuming requestno is in column T
+       If currentRequestNo = dict(userId) Then
+           ' Keep the row if it has the max requestno for its userid
+           ' Do nothing, values are already kept intact
+       Else
+           ' Clear non-maximum rows
+           ws.Rows(i).ClearContents
+       End If
+   Next i
+   ' Close and save the workbook
+   wb.Save
+   wb.Close
+   MsgBox "Filtering completed for sheet '" & sheetName & "' in file '" & filePath & "'."
+End Sub
+
+
+
+Sub RunFilterMacro()
+   Dim filePath As String
+   Dim sheetName As String
+   ' Specify the path of the Excel file
+   filePath = "C:\Path\To\Your\File.xlsx" ' Update with your file path
+   ' Specify the sheet name
+   sheetName = "Sheet1" ' Update with your sheet name
+   FilterLatestRequests filePath, sheetName
+End Sub
