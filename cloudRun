@@ -1,0 +1,41 @@
+provider "google" {
+ project = "your-gcp-project"
+ region  = "your-gcp-region"
+}
+resource "google_cloud_run_service" "default" {
+ name     = "my-cloud-run-service"
+ location = "your-gcp-region"
+ template {
+   spec {
+     containers {
+       image = "gcr.io/your-gcp-project/your-image"
+     }
+   }
+ }
+ traffic {
+   percent         = 100
+   latest_revision = true
+ }
+}
+resource "google_cloud_run_service_iam_member" "allow-authenticated" {
+ project = google_cloud_run_service.default.project
+ location = google_cloud_run_service.default.location
+ service  = google_cloud_run_service.default.name
+ role     = "roles/run.invoker"
+ member   = "user:your-authenticated-user@example.com"
+ # For groups, use "group:your-group@example.com"
+ # For service accounts, use "serviceAccount:your-service-account@your-gcp-project.iam.gserviceaccount.com"
+}
+# Ensure no public access is granted
+resource "google_cloud_run_service_iam_member" "deny-unauthenticated" {
+ project  = google_cloud_run_service.default.project
+ location = google_cloud_run_service.default.location
+ service  = google_cloud_run_service.default.name
+ role     = "roles/run.invoker"
+ member   = "allUsers"
+ condition {
+   title       = "Deny unauthenticated access"
+   description = "Deny access to unauthenticated users"
+   expression  = "false"
+ }
+}
