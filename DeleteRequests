@@ -50,7 +50,7 @@ Sub GenerateFinalReport()
                 loginEmail = LCase(loginSheet.Cells(j, "G").Value)
 
                 ' Check if the email matches and the account is not suspended
-                If idmEmail = loginEmail And loginSheet.Cells(j, "O").Value <> True Then
+                If idmEmail = loginEmail And loginSheet.Cells(j, "O").Value <> "TRUE" Then
                     ' Copy the matching row to the final report
                     finalReport.Cells(finalRow, 1).Value = idmSheet.Cells(i, "C").Value ' Name
                     finalReport.Cells(finalRow, 2).Value = idmSheet.Cells(i, "D").Value ' Email
