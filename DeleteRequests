@@ -40,6 +40,16 @@ Sub GenerateFinalReport()
     idmLastRow = idmSheet.Cells(idmSheet.Rows.Count, "C").End(xlUp).Row
     loginLastRow = loginSheet.Cells(loginSheet.Rows.Count, "G").End(xlUp).Row
 
+    ' Delete rows in Login report where column H is "FALSE"
+    For j = loginLastRow To 2 Step -1 ' Loop backwards to avoid skipping rows after deletion
+        If LCase(loginSheet.Cells(j, "H").Value) = "false" Then
+            loginSheet.Rows(j).Delete
+        End If
+    Next j
+
+    ' Update the last row of Login report after deletion
+    loginLastRow = loginSheet.Cells(loginSheet.Rows.Count, "G").End(xlUp).Row
+
     ' Loop through the IDM Report
     For i = 2 To idmLastRow ' Assuming the first row is headers
         If idmSheet.Cells(i, "AA").Value = "DEL" Then
@@ -49,15 +59,13 @@ Sub GenerateFinalReport()
             For j = 2 To loginLastRow ' Assuming the first row is headers
                 loginEmail = LCase(loginSheet.Cells(j, "G").Value)
 
-                ' Check if the email matches and the account is not suspended
+                ' Check if the email matches
                 If idmEmail = loginEmail Then
-                    If LCase(loginSheet.Cells(j, "O").Value) <> "true" Then
-                        ' Copy the matching row to the final report
-                        finalReport.Cells(finalRow, 1).Value = idmSheet.Cells(i, "C").Value ' Name
-                        finalReport.Cells(finalRow, 2).Value = idmSheet.Cells(i, "D").Value ' Email
-                        finalReport.Cells(finalRow, 3).Value = idmSheet.Cells(i, "AA").Value ' REQTYPE
-                        finalRow = finalRow + 1
-                    End If
+                    ' Copy the matching row to the final report
+                    finalReport.Cells(finalRow, 1).Value = idmSheet.Cells(i, "C").Value ' Name
+                    finalReport.Cells(finalRow, 2).Value = idmSheet.Cells(i, "D").Value ' Email
+                    finalReport.Cells(finalRow, 3).Value = idmSheet.Cells(i, "AA").Value ' REQTYPE
+                    finalRow = finalRow + 1
                     Exit For ' Exit the inner loop once a match is found
                 End If
             Next j
