@@ -1,0 +1,77 @@
+Sub GenerateFinalReport()
+    Dim idmReport As Workbook
+    Dim loginReport As Workbook
+    Dim finalReport As Worksheet
+    Dim idmSheet As Worksheet
+    Dim loginSheet As Worksheet
+    Dim idmLastRow As Long
+    Dim loginLastRow As Long
+    Dim finalRow As Long
+    Dim idmEmail As String
+    Dim loginEmail As String
+    Dim i As Long
+    Dim j As Long
+    Dim idmPath As String
+    Dim loginPath As String
+
+    ' Full paths to the reports
+    idmPath = "C:\path\to\your\IDM_Report.xlsx"
+    loginPath = "C:\path\to\your\Login_Report.xlsx"
+
+    ' Open the workbooks
+    Set idmReport = Workbooks.Open(idmPath)
+    Set loginReport = Workbooks.Open(loginPath)
+
+    ' Set references to the worksheets
+    Set idmSheet = idmReport.Sheets(1)
+    Set loginSheet = loginReport.Sheets(1)
+    Set finalReport = Workbooks.Add.Sheets(1)
+    finalReport.Name = "Final Report"
+
+    ' Add headers to the final report
+    finalReport.Cells(1, 1).Value = "Name"
+    finalReport.Cells(1, 2).Value = "Email"
+    finalReport.Cells(1, 3).Value = "Req_Type"
+
+    ' Initialize the final report row counter
+    finalRow = 2
+
+    ' Get the last row of IDM and Login reports
+    idmLastRow = idmSheet.Cells(idmSheet.Rows.Count, "C").End(xlUp).Row
+    loginLastRow = loginSheet.Cells(loginSheet.Rows.Count, "G").End(xlUp).Row
+
+    ' Loop through the IDM Report
+    For i = 2 To idmLastRow ' Assuming the first row is headers
+        If idmSheet.Cells(i, "AA").Value = "DEL" Then
+            idmEmail = LCase(idmSheet.Cells(i, "D").Value)
+
+            ' Loop through the Login Report to find a matching email
+            For j = 2 To loginLastRow ' Assuming the first row is headers
+                loginEmail = LCase(loginSheet.Cells(j, "G").Value)
+
+                ' Check if the email matches and the account is not suspended
+                If idmEmail = loginEmail And loginSheet.Cells(j, "O").Value <> True Then
+                    ' Copy the matching row to the final report
+                    finalReport.Cells(finalRow, 1).Value = idmSheet.Cells(i, "C").Value ' Name
+                    finalReport.Cells(finalRow, 2).Value = idmSheet.Cells(i, "D").Value ' Email
+                    finalReport.Cells(finalRow, 3).Value = idmSheet.Cells(i, "AA").Value ' REQTYPE
+                    finalRow = finalRow + 1
+                    Exit For ' Exit the inner loop once a match is found
+                End If
+            Next j
+        End If
+    Next i
+
+    ' Remove duplicates from the final report
+    With finalReport
+        .Range("A1:C" & finalRow - 1).RemoveDuplicates Columns:=Array(2), Header:=xlYes
+    End With
+
+    ' Save the final report
+    finalReport.SaveAs "C:\path\to\your\Final_Report.xlsx"
+    MsgBox "Final report generated successfully!", vbInformation
+
+    ' Close the workbooks
+    idmReport.Close SaveChanges:=False
+    loginReport.Close SaveChanges:=False
+End Sub
