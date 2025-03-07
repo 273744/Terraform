@@ -1,0 +1,32 @@
+Sub RemoveInactiveRecords()
+    Dim loginReport As Workbook
+    Dim loginSheet As Worksheet
+    Dim loginLastRow As Long
+    Dim j As Long
+    Dim loginPath As String
+
+    ' Full path to the Login report
+    loginPath = "C:\path\to\your\Login_Report.xlsx"
+
+    ' Open the workbook
+    Set loginReport = Workbooks.Open(loginPath)
+
+    ' Set reference to the worksheet
+    Set loginSheet = loginReport.Sheets(1)
+
+    ' Get the last row of the Login report
+    loginLastRow = loginSheet.Cells(loginSheet.Rows.Count, "H").End(xlUp).Row
+
+    ' Loop through the Login report and delete rows where column H is "FALSE"
+    For j = loginLastRow To 2 Step -1 ' Loop backwards to avoid skipping rows after deletion
+        If LCase(loginSheet.Cells(j, "H").Value) = "false" Then
+            loginSheet.Rows(j).Delete
+        End If
+    Next j
+
+    ' Save and close the workbook
+    loginReport.Save
+    loginReport.Close SaveChanges:=True
+
+    MsgBox "Inactive records removed successfully!", vbInformation
+End Sub
