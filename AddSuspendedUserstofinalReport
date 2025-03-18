@@ -1,104 +1,103 @@
 Sub CompareAndGenerateFinalReport()
-   Dim idmReport As Worksheet
-   Dim loginReport As Worksheet
-   Dim finalReport As Workbook
-   Dim idmLastRow As Long
-   Dim loginLastRow As Long
-   Dim finalLastRow As Long
-   Dim idmRacfid As String
-   Dim idmEmail As String
-   Dim idmRole As String
-   Dim loginEmail As String
-   Dim loginRole As String
-   Dim loginSuspended As Boolean
-   Dim finalRow As Long
-   Dim idmRow As Long
-   Dim loginRow As Long
-   Dim folderPath As String
-   Dim finalFilePath As String
-   Dim emailDict As Object
-   ' Specify the file names
-   Dim idmFileName As String
-   Dim loginFileName As String
-   idmFileName = "IDMReport.xlsx"
-   loginFileName = "LoginReport.xlsx"
-   ' Specify the folder path to save the final report
-   folderPath = "C:\Path\To\Reports"
-   ' Set references to the worksheets
-   Set idmReport = Workbooks.Open(folderPath & "\" & idmFileName).Sheets("IDMReport")
-   Set loginReport = Workbooks.Open(folderPath & "\" & loginFileName).Sheets("LoginReport")
-   ' Create a new workbook for the final report
-   Set finalReport = Workbooks.Add(xlWBATWorksheet)
-   finalLastRow = 1 ' Initialize the final report row
-   ' Initialize dictionary to store unique email addresses
-   Set emailDict = CreateObject("Scripting.Dictionary")
-   ' Find the last row in each report
-   idmLastRow = idmReport.Cells(idmReport.Rows.Count, "A").End(xlUp).Row
-   loginLastRow = loginReport.Cells(loginReport.Rows.Count, "F").End(xlUp).Row
-   ' Loop through each row in IDM report
-   For idmRow = 2 To idmLastRow ' Assuming row 1 is header
-       idmRacfid = idmReport.Cells(idmRow, 1).Value
-       idmEmail = idmReport.Cells(idmRow, 3).Value
-       idmRole = CleanString(idmReport.Cells(idmRow, 4).Value)
-       ' Check if the email exists in login report
-       For loginRow = 2 To loginLastRow ' Assuming row 1 is header
-           loginEmail = loginReport.Cells(loginRow, 6).Value
-           If CleanString(idmEmail) = CleanString(loginEmail) Then
-               loginRole = CleanString(loginReport.Cells(loginRow, 12).Value)
-               loginSuspended = loginReport.Cells(loginRow, 15).Value ' Column O is the 15th column
-               ' Check if roles are different or if roles are same and suspended is true
-               If idmRole <> loginRole Or (idmRole = loginRole And loginSuspended = True) Then
-                   ' Check if email is already added to dictionary
-                   If Not emailDict.exists(idmEmail) Then
-                       finalRow = finalLastRow + 1
-                       With finalReport.Sheets(1)
-                           .Cells(finalRow, 1).Value = idmRacfid
-                           .Cells(finalRow, 2).Value = idmEmail
-                           .Cells(finalRow, 3).Value = idmRole
-                           .Cells(finalRow, 4).Value = loginRole
-                           .Cells(finalRow, 5).Value = loginSuspended ' Add suspended status to the report
-                       End With
-                       finalLastRow = finalRow
-                       ' Add email to dictionary
-                       emailDict.Add idmEmail, True
-                   End If
-               End If
-               Exit For ' Exit loop once email match found
-           End If
-       Next loginRow
-   Next idmRow
-   ' Format final report headers
-   With finalReport.Sheets(1)
-       .Cells(1, 1).Value = "RACFID"
-       .Cells(1, 2).Value = "Email"
-       .Cells(1, 3).Value = "IDM Role"
-       .Cells(1, 4).Value = "Login Role"
-       .Cells(1, 5).Value = "Suspended"
-   End With
-   ' Save the final report
-   finalFilePath = folderPath & "\" & "FinalReport.xlsx"
-   finalReport.SaveAs finalFilePath
-   ' Close the final report workbook
-   finalReport.Close False
-   ' Close the IDM report and login report workbooks without saving changes
-   Workbooks(idmFileName).Close False
-   Workbooks(loginFileName).Close False
-   MsgBox "Comparison and generation of final report completed. Final report saved at: " & finalFilePath, vbInformation
+    Dim idmReport As Worksheet
+    Dim loginReport As Worksheet
+    Dim finalReport As Workbook
+    Dim idmLastRow As Long
+    Dim loginLastRow As Long
+    Dim finalLastRow As Long
+    Dim idmRacfid As String
+    Dim idmEmail As String
+    Dim idmRole As String
+    Dim loginEmail As String
+    Dim loginRole As String
+    Dim loginSuspended As Boolean
+    Dim finalRow As Long
+    Dim idmRow As Long
+    Dim loginRow As Long
+    Dim folderPath As String
+    Dim finalFilePath As String
+    Dim emailDict As Object
+    ' Specify the file names
+    Dim idmFileName As String
+    Dim loginFileName As String
+    idmFileName = "IDMReport.xlsx"
+    loginFileName = "LoginReport.xlsx"
+    ' Specify the folder path to save the final report
+    folderPath = "C:\Path\To\Reports"
+    ' Set references to the worksheets
+    Set idmReport = Workbooks.Open(folderPath & "\" & idmFileName).Sheets("IDMReport")
+    Set loginReport = Workbooks.Open(folderPath & "\" & loginFileName).Sheets("LoginReport")
+    ' Create a new workbook for the final report
+    Set finalReport = Workbooks.Add(xlWBATWorksheet)
+    finalLastRow = 1 ' Initialize the final report row
+    ' Initialize dictionary to store unique email addresses
+    Set emailDict = CreateObject("Scripting.Dictionary")
+    ' Find the last row in each report
+    idmLastRow = idmReport.Cells(idmReport.Rows.Count, "A").End(xlUp).Row
+    loginLastRow = loginReport.Cells(loginReport.Rows.Count, "F").End(xlUp).Row
+    ' Loop through each row in IDM report
+    For idmRow = 2 To idmLastRow ' Assuming row 1 is header
+        idmRacfid = idmReport.Cells(idmRow, 1).Value
+        idmEmail = CleanString(idmReport.Cells(idmRow, 3).Value)
+        idmRole = CleanString(idmReport.Cells(idmRow, 4).Value)
+        ' Check if the email exists in login report
+        For loginRow = 2 To loginLastRow ' Assuming row 1 is header
+            loginEmail = CleanString(loginReport.Cells(loginRow, 6).Value)
+            If idmEmail = loginEmail Then
+                loginRole = CleanString(loginReport.Cells(loginRow, 12).Value)
+                loginSuspended = loginReport.Cells(loginRow, 15).Value ' Column O is the 15th column
+                ' Check if roles are different or if roles are same and suspended is true
+                If idmRole <> loginRole Or (idmRole = loginRole And loginSuspended = True) Then
+                    ' Check if email is already added to dictionary
+                    If Not emailDict.exists(idmEmail) Then
+                        finalRow = finalLastRow + 1
+                        With finalReport.Sheets(1)
+                            .Cells(finalRow, 1).Value = idmRacfid
+                            .Cells(finalRow, 2).Value = idmReport.Cells(idmRow, 3).Value ' Keep original email format
+                            .Cells(finalRow, 3).Value = idmRole
+                            .Cells(finalRow, 4).Value = loginRole
+                        End With
+                        finalLastRow = finalRow
+                        ' Add email to dictionary
+                        emailDict.Add idmEmail, True
+                    End If
+                End If
+                Exit For ' Exit loop once email match found
+            End If
+        Next loginRow
+    Next idmRow
+    ' Format final report headers
+    With finalReport.Sheets(1)
+        .Cells(1, 1).Value = "RACFID"
+        .Cells(1, 2).Value = "Email"
+        .Cells(1, 3).Value = "IDM Role"
+        .Cells(1, 4).Value = "Login Role"
+    End With
+    ' Save the final report
+    finalFilePath = folderPath & "\" & "FinalReport.xlsx"
+    finalReport.SaveAs finalFilePath
+    ' Close the final report workbook
+    finalReport.Close False
+    ' Close the IDM report and login report workbooks without saving changes
+    Workbooks(idmFileName).Close False
+    Workbooks(loginFileName).Close False
+    MsgBox "Comparison and generation of final report completed. Final report saved at: " & finalFilePath, vbInformation
 End Sub
 
 Function CleanString(inputString As Variant) As String
-   ' Function to clean special characters and spaces from a string
-   Dim cleanStr As String
-   Dim i As Integer
-   Dim char As String
-   ' Check if inputString is not empty and is a string
-   If Not IsError(inputString) And Not IsEmpty(inputString) And VarType(inputString) = vbString Then
-       For i = 1 To Len(inputString)
-           char = Mid(inputString, i, 1)
-           If Asc(char) >= 65 And Asc(char) <= 90 Or Asc(char) >= 97 And Asc(char) <= 122 Or Asc(char) >= 48 And Asc(char) <= 57 Then
-               cleanStr = cleanStr & char
-           End If
-       Next i
-   End If
-   CleanString = cleanStr
+    ' Function to clean special characters and spaces from a string and convert to lowercase
+    Dim cleanStr As String
+    Dim i As Integer
+    Dim char As String
+    ' Check if inputString is not empty and is a string
+    If Not IsError(inputString) And Not IsEmpty(inputString) And VarType(inputString) = vbString Then
+        inputString = LCase(inputString) ' Convert to lowercase
+        For i = 1 To Len(inputString)
+            char = Mid(inputString, i, 1)
+            If Asc(char) >= 97 And Asc(char) <= 122 Or Asc(char) >= 48 And Asc(char) <= 57 Then
+                cleanStr = cleanStr & char
+            End If
+        Next i
+    End If
+    CleanString = cleanStr
 End Function
