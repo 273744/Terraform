@@ -43,9 +43,7 @@ Sub CompareAndGenerateFinalReport()
         idmRole = CleanString(idmReport.Cells(idmRow, 4).Value)
         idmRequestType = idmReport.Cells(idmRow, 5).Value ' Column E is the 5th column
         ' Skip if request_type is 'DEL'
-        If idmRequestType = "DEL" Then
-            Continue For
-        End If
+        If idmRequestType = "DEL" Then GoTo SkipToNextIdmRow
         ' Check if the email exists in login report
         For loginRow = 2 To loginLastRow ' Assuming row 1 is header
             loginEmail = CleanString(loginReport.Cells(loginRow, 6).Value)
@@ -71,6 +69,7 @@ Sub CompareAndGenerateFinalReport()
                 Exit For ' Exit loop once email match found
             End If
         Next loginRow
+SkipToNextIdmRow:
     Next idmRow
     ' Format final report headers
     With finalReport.Sheets(1)
