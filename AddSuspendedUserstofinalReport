@@ -11,6 +11,7 @@ Sub CompareAndGenerateFinalReport()
     Dim loginEmail As String
     Dim loginRole As String
     Dim loginSuspended As Boolean
+    Dim idmRequestType As String
     Dim finalRow As Long
     Dim idmRow As Long
     Dim loginRow As Long
@@ -40,6 +41,11 @@ Sub CompareAndGenerateFinalReport()
         idmRacfid = idmReport.Cells(idmRow, 1).Value
         idmEmail = CleanString(idmReport.Cells(idmRow, 3).Value)
         idmRole = CleanString(idmReport.Cells(idmRow, 4).Value)
+        idmRequestType = idmReport.Cells(idmRow, 5).Value ' Column E is the 5th column
+        ' Skip if request_type is 'DEL'
+        If idmRequestType = "DEL" Then
+            Continue For
+        End If
         ' Check if the email exists in login report
         For loginRow = 2 To loginLastRow ' Assuming row 1 is header
             loginEmail = CleanString(loginReport.Cells(loginRow, 6).Value)
