@@ -1,0 +1,38 @@
+Problem Statement
+Title: Efficient License Management for Alation Data Catalog
+
+Objective: To identify and deactivate users who have been terminated or moved to different departments, thereby managing licenses effectively and reducing unnecessary costs.
+
+Background: In our organization, we use the Alation Data Catalog to manage and catalog our data assets. However, we have observed that there are users who no longer need access to the system due to termination or departmental changes. These inactive users continue to occupy licenses, leading to inefficient license utilization and increased costs.
+
+Challenges:
+
+Identification of Inactive Users: There is no automated process to identify users who have been terminated or moved to different departments.
+License Management: Inactive users continue to occupy licenses, leading to unnecessary costs.
+Manual Process: The current process of identifying and deactivating users is manual, time-consuming, and prone to errors.
+Solution
+Proposed Solution: Develop a script to automate the identification of users who have been terminated or moved to different departments and generate a report to facilitate the deactivation of these users in the Alation Data Catalog.
+
+Implementation Steps:
+
+Data Collection:
+
+Extract user data from the IDM (Identity Management) system and the Login system.
+Include relevant fields such as user ID, email, role, department, and status (active/terminated).
+Data Comparison:
+
+Compare the user data from the IDM and Login systems.
+Identify users whose status is 'terminated' or who have moved to different departments.
+Report Generation:
+
+Generate a report listing the users who need to be deactivated.
+Include details such as user ID, email, previous department, and current status.
+Automation:
+
+Schedule the script to run at regular intervals (e.g., weekly) to ensure up-to-date license management.
+Send the generated report to the relevant team for action.
+Benefits:
+
+Cost Savings: By deactivating inactive users, we can free up licenses and reduce unnecessary costs.
+Efficiency: Automating the process reduces manual effort and minimizes errors.
+Timeliness: Regularly scheduled reports ensure that the license management process is up-to-date and responsive to changes in user status.
