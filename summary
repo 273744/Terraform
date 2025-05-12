@@ -1,0 +1,20 @@
+Summary of Actions Taken and Current Progress:
+
+Issue Overview:
+After upgrading the machine type, the application stopped functioning as expected. Attempts to restore the machine to a previous state were unsuccessful due to issues with Rubrik's USM team.
+
+Steps Taken:
+
+Engaged the Rubrik vendor to assist with restoration, but the issue remained unresolved.
+Engaged the Alation vendor to restore the application using available backups.
+Attempted a destructive restore, which ran for approximately 4 hours but was unsuccessful.
+Conducted a manual restore on Sunday, which took around 6 hours but did not fully recover the application.
+Current Status:
+
+The application is still not fully operational.
+A troubleshooting meeting is scheduled for Monday at 12 AM to further investigate and resolve the issue.
+Next Steps:
+
+Collaborate with the vendors and technical teams during the scheduled meeting to identify and fix the root cause.
+Provide updates to the business as progress is made.
+Let me know if you need further refinements!
