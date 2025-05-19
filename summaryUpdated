@@ -1,0 +1,18 @@
+Summary for Business Communication
+Problem Statement:
+After upgrading the machine type, the application stopped functioning as expected. Attempts to restore the machine to a previous state were unsuccessful due to missing permissions for Rubrik's USM team, resulting in service disruptions.
+
+Actions Taken:
+Engaged the Rubrik vendor to assist with restoration, but the issue remained unresolved.
+Engaged the Alation vendor to restore the application using available backups.
+Attempted a destructive restore on Sunday, which ran for 4 hours but was unsuccessful.
+Conducted a manual restore on Sunday, which took 6 hours but did not fully recover the application.
+On Monday, worked with the vendor to run a destructive restore using the May 8th backup. The restore was successful, and the core functionality was restored.
+The index rebuild script is still running due to the large size of the data.
+Current Status:
+The DataNav application is operational, and all users can log in without any issues.
+The index rebuild script is in progress and expected to complete soon.
+Vendors have recommended stopping the Alation services in both Application and Analytics services to prevent similar issues in the future.
+Preventive Measures:
+Ensure the USM team has the necessary permissions to restore the server in case of future issues to avoid delays.
+Engage vendors during machine upgrades to mitigate risks associated with machine type changes.
